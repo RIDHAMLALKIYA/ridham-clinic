@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HealthCore: Intelligent Clinic Management System
 
-## Getting Started
+HealthCore is a high-performance, enterprise-grade clinic management solution built with **Next.js 15**, **Drizzle ORM**, and **PostgreSQL**. Designed for seamless patient workflows and automated reminder systems.
 
-First, run the development server:
+---
+
+## 🏛 Architecture & Vision
+
+This repository follows a **Clean Architecture** pattern, emphasizing separation of concerns and scalability.
+
+- **Frontend**: Next.js 15 (App Router), Framer Motion, Tailwind CSS
+- **Database**: PostgreSQL with Drizzle ORM
+- **Automation**: QStash for background scheduling
+- **Communication**: Resend / SMTP for patient engagement
+
+For a deep dive into our modular structure, see:
+
+- 📂 **[System Workflow](./PROJECT_WORKFLOW.md)**: Deployment, Automation, and Security patterns.
+- 📐 **[Project Structure](./STRUCTURE.md)**: Technical breakdown of the root-level architecture.
+
+---
+
+## 🚀 Key Features
+
+- **Dynamic Patient Queue**: Live-updating check-in system with audio cues.
+- **Smart Reminders**: Automated 30-minute and "Starting Now" email notifications via QStash.
+- **Role-Based Access**: Specialized dashboards for Admins and Doctors.
+- **Performance Optimized**: Built-in Prettier/ESLint configuration for consistent code quality.
+
+---
+
+## 🛠 Getting Started
+
+### 1. Prerequisites
+
+- Node.js 20+
+- PostgreSQL instance
+
+### 2. Installation
+
+```bash
+npm install
+```
+
+### 3. Environment Setup
+
+Create a `.env` file in the root based on your credentials:
+
+- `DATABASE_URL`
+- `RESEND_API_KEY`
+- `QSTASH_TOKEN`
+
+### 4. Database Sync
+
+```bash
+npm run db:push
+```
+
+### 5. Running the Engine
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 💎 Professional Standards
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project adheres to professional software engineering standards:
 
-## Learn More
+- **Consistent Styling**: Managed via Prettier.
+- **Type Safety**: Full TypeScript integration across the stack.
+- **Modular Actions**: Server actions split by business domain.
+- **Validated Inputs**: Centralized validation logic in `/validations`.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+_Built for excellence in healthcare administration._
