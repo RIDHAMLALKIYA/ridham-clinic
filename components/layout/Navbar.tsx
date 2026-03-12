@@ -14,7 +14,7 @@ import {
   Activity,
   Heart,
 } from 'lucide-react';
-import { ThemeToggle } from './ThemeToggle';
+import { ThemeToggle } from '../shared/ThemeToggle';
 
 export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true);
@@ -83,10 +83,10 @@ export default function Navbar() {
                 ${!isMounted ? 'translate-y-0 opacity-100' : isVisible || isMenuOpen || isScrolled ? 'translate-y-0 opacity-100' : 'max-lg:translate-y-0 max-lg:opacity-100 -translate-y-full opacity-0'}`}
       >
         <div
-          className={`mx-4 mt-6 lg:mt-6 rounded-[2.8rem] border border-white/10 transition-all duration-700 shadow-2xl overflow-hidden glass-vip-polished
+          className={`mx-3 sm:mx-4 mt-4 lg:mt-6 rounded-[1.8rem] md:rounded-[2.8rem] border border-white/10 transition-all duration-700 shadow-2xl overflow-hidden glass-vip-polished
                     ${isScrolled || isMenuOpen ? 'border-beam' : ''}`}
         >
-          <div className="max-w-7xl mx-auto px-8 lg:px-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
             <div className="flex justify-between h-20 items-center">
               {/* Logo */}
               <Link
@@ -101,10 +101,10 @@ export default function Navbar() {
                   </div>
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter group-hover:text-emerald-500 transition-colors duration-500 leading-none">
+                  <span className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter group-hover:text-emerald-500 transition-colors duration-500 leading-none">
                     HealthCor <span className="text-emerald-500">Clinic.</span>
                   </span>
-                  <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.5em] mt-1 ml-0.5">Elite Medical Node</span>
+                  <span className="text-[8px] md:text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] md:tracking-[0.5em] mt-1 ml-0.5">Elite Medical Node</span>
                 </div>
               </Link>
 
@@ -149,14 +149,13 @@ export default function Navbar() {
                 </div>
               </div>
 
-              {/* Mobile Toggle */}
-              <div className="lg:hidden flex items-center gap-3">
+              <div className="lg:hidden flex items-center gap-2 md:gap-3">
                 <ThemeToggle />
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="lg:hidden p-4 bg-slate-100 dark:bg-white/5 rounded-2xl text-slate-600 dark:text-white hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 transition-all active:scale-90 shadow-sm"
+                  className="p-3 md:p-4 bg-slate-100 dark:bg-white/5 rounded-xl md:rounded-2xl text-slate-600 dark:text-white hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 transition-all active:scale-90 shadow-sm"
                 >
-                  {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                  {isMenuOpen ? <X className="w-5 h-5 md:w-6 md:h-6" /> : <Menu className="w-5 h-5 md:w-6 md:h-6" />}
                 </button>
               </div>
             </div>
@@ -167,30 +166,30 @@ export default function Navbar() {
             className={`lg:hidden transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] border-t border-slate-200 dark:border-white/5 overflow-hidden
                         ${isMenuOpen ? 'max-h-[700px] opacity-100' : 'max-h-0 opacity-0'}`}
           >
-            <div className="p-8 space-y-5 bg-slate-50/80 dark:bg-black/40 backdrop-blur-3xl">
+            <div className="p-4 sm:p-8 space-y-3 sm:space-y-5 bg-slate-50/80 dark:bg-black/40 backdrop-blur-3xl max-h-[80vh] overflow-y-auto custom-scrollbar">
               {[
                 {
-                  name: 'Session Reservation',
+                  name: 'Reservations',
                   href: '/',
                   icon: <Calendar className="w-5 h-5 text-emerald-500" />,
                 },
                 {
-                  name: 'Authorized Check-in',
+                  name: 'Check-in',
                   href: '/checkin',
                   icon: <UserCheck className="w-5 h-5 text-teal-500" />,
                 },
                 {
-                  name: 'Live Queue Lobby',
+                  name: 'Lobby',
                   href: '/queue',
                   icon: <Users className="w-5 h-5 text-emerald-500" />,
                 },
                 {
-                  name: 'Medical Authority',
+                  name: 'Console',
                   href: '/doctor/dashboard',
                   icon: <Activity className="w-5 h-5 text-red-500" />,
                 },
                 {
-                  name: 'Admissions Panel',
+                  name: 'Admissions',
                   href: '/admin',
                   icon: <ShieldCheck className="w-5 h-5 text-slate-600 dark:text-slate-300" />,
                 },
@@ -199,15 +198,15 @@ export default function Navbar() {
                   key={item.href}
                   href={item.href}
                   onClick={closeMenu}
-                  className="flex items-center justify-between p-6 bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-[2rem] text-slate-900 dark:text-white font-black uppercase text-[11px] tracking-widest hover:border-emerald-500 hover:text-emerald-500 transition-all shadow-sm group active:scale-[0.98]"
+                  className="flex items-center justify-between p-4 sm:p-6 bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-[1.5rem] sm:rounded-[2rem] text-slate-900 dark:text-white font-black uppercase text-[10px] sm:text-[11px] tracking-widest hover:border-emerald-500 hover:text-emerald-500 transition-all shadow-sm group active:scale-[0.98]"
                 >
-                  <div className="flex items-center gap-5">
-                    <div className="p-3 bg-slate-50 dark:bg-black/50 rounded-2xl group-hover:scale-110 transition-transform shadow-inner">
+                  <div className="flex items-center gap-4 sm:gap-5">
+                    <div className="p-2.5 sm:p-3 bg-slate-50 dark:bg-black/50 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform shadow-inner">
                       {item.icon}
                     </div>
                     <span>{item.name}</span>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-300 group-hover:translate-x-1 transition-transform" />
                 </Link>
               ))}
             </div>

@@ -15,8 +15,8 @@ This repository follows a **Clean Architecture** pattern, emphasizing separation
 
 For a deep dive into our modular structure, see:
 
-- 📂 **[System Workflow](./PROJECT_WORKFLOW.md)**: Deployment, Automation, and Security patterns.
-- 📐 **[Project Structure](./STRUCTURE.md)**: Technical breakdown of the root-level architecture.
+- 📂 **[System Workflow](./docs/PROJECT_WORKFLOW.md)**: Deployment, Automation, and Security patterns.
+- 📐 **[Project Structure](./docs/STRUCTURE.md)**: Technical breakdown of the root-level architecture.
 
 ---
 

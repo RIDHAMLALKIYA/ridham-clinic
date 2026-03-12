@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
-import { ThemeProvider } from '@/components/ThemeProvider';
-import Navbar from '@/components/Navbar';
-import ClientLayoutEffects from '@/components/ClientLayoutEffects';
-import { ClinicSoundProvider } from '@/components/ClinicSoundProvider';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import Navbar from '@/components/layout/Navbar';
+import ClientLayoutEffects from '@/components/layout/ClientLayoutEffects';
+import { ClinicSoundProvider } from '@/components/providers/ClinicSoundProvider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -38,9 +38,7 @@ export default function RootLayout({
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-50">
               <Navbar />
             </div>
-            <main className="flex-1 w-full relative z-10 font-outfit">
-              {children}
-            </main>
+            <main className="flex-1 w-full relative z-10 font-outfit">{children}</main>
 
             {/* Minimal Footer */}
             <footer className="w-full py-12 px-6 text-center opacity-30">

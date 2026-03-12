@@ -8,7 +8,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export async function sendEmail(to: string, subject: string, text: string) {
+export async function sendEmail(
+  to: string,
+  subject: string,
+  text: string,
+  html?: string,
+  attachments?: any[]
+) {
   if (process.env.DISABLE_EMAILS === 'true') {
     console.log('🔇 [EMAILS DISABLED] Would have sent to:', to, '| Subject:', subject);
     return;
@@ -21,7 +27,9 @@ export async function sendEmail(to: string, subject: string, text: string) {
 
   // Warning for placeholder
   if (process.env.SMTP_EMAIL === 'your-email@gmail.com') {
-    console.error('❌ ERROR: You are still using "your-email@gmail.com" in .env. Please update it to your actual Gmail address.');
+    console.error(
+      '❌ ERROR: You are still using "your-email@gmail.com" in .env. Please update it to your actual Gmail address.'
+    );
     return;
   }
 
@@ -31,6 +39,8 @@ export async function sendEmail(to: string, subject: string, text: string) {
       to,
       subject,
       text,
+      html,
+      attachments,
     });
     console.log('✅ Email sent successfully:', info.messageId);
     return info;

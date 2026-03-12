@@ -74,6 +74,7 @@ html {
       transparent);
   background-size: 200% 100%;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
@@ -554,11 +555,26 @@ textarea:focus {
 
 /* Premium utilities */
 .glass-panel {
-  @apply bg-white/70 backdrop-blur-md border border-white/60 shadow-sm transition-all duration-500;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 500ms;
 }
 
 .premium-card {
-  @apply bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl shadow-teal-900/10 overflow-hidden border border-slate-100 relative transition-all duration-500;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(24px);
+  border-radius: 2rem;
+  box-shadow: 0 25px 50px -12px rgba(19, 78, 74, 0.1);
+  overflow: hidden;
+  border: 1px solid #f1f5f9;
+  position: relative;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 500ms;
 }
 
 /* Custom Scrollbar for premium feel */
