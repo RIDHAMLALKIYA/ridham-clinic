@@ -1,7 +1,7 @@
 import { db } from '@/db';
 import { appointments, patients, settings } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
-import AutoRefresh from '@/components/AutoRefresh';
+import AutoRefresh from '@/components/shared/AutoRefresh';
 import QueueAudioAlert from './QueueAudioAlert';
 import ScrollingName from './ScrollingName';
 import {
@@ -18,7 +18,7 @@ import {
   Activity,
   Zap,
 } from 'lucide-react';
-import AnimatedWrapper from '@/components/AnimatedWrapper';
+import AnimatedWrapper from '@/components/layout/AnimatedWrapper';
 
 import QueueClient from './QueueClient';
 
