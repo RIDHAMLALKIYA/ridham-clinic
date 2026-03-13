@@ -92,21 +92,30 @@ export async function updateAppointment(
       const now = new Date();
       const thirtyMinBefore = new Date(scheduledAt.getTime() - 30 * 60 * 1000);
 
+      console.log(`[DoctorAction] Time Diagnosis:`);
+      console.log(` - Current Time: ${now.toISOString()}`);
+      console.log(` - Appt Time: ${scheduledAt.toISOString()}`);
+      console.log(` - 30m Before: ${thirtyMinBefore.toISOString()}`);
+
       if (thirtyMinBefore > now) {
-        console.log(`[DoctorAction] Scheduling 30-min reminder for ${thirtyMinBefore.toISOString()}`);
+        console.log(`[DoctorAction] 🗓️ Scheduling 30-min reminder (Delayed)`);
         await scheduleReminder(id, patient.name, patient.email, thirtyMinBefore, '30min');
       } else if (scheduledAt > now) {
-        console.log(`[DoctorAction] Appointment is soon (<30 mins). Sending immediate reminder.`);
+        console.log(`[DoctorAction] ⚡ Appointment is very soon. Sending IMMEDIATE reminder email.`);
         await sendEmail(
           patient.email,
           'Upcoming Appointment Reminder - HealthCore Clinic',
           `Hello ${patient.name},\n\nYour appointment at HealthCore Clinic is approaching shortly (at ${formatTime12h(appointmentTime || '')}). We look forward to seeing you!\n\nBest regards,\nHealthCore Team`
         );
       } else {
-        console.warn(`[DoctorAction] ⚠️ Appointment is in the past. No reminders scheduled.`);
+        console.warn(`[DoctorAction] ⚠️ Appointment is in the past. Skipping 30min automation.`);
       }
 
-      await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact');
+      // Always schedule the "Starting Now" reminder if it's still in the future
+      if (scheduledAt > now) {
+        console.log(`[DoctorAction] 🗓️ Scheduling 'Starting Now' reminder`);
+        await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact');
+      }
     }
   }
 
@@ -232,11 +241,16 @@ export async function scheduleReappointment(patientId: number, date: string, tim
     const now = new Date();
     const thirtyMinBefore = new Date(scheduledAt.getTime() - 30 * 60 * 1000);
 
+    console.log(`[Reappointment] Time Diagnosis:`);
+    console.log(` - Current Time: ${now.toISOString()}`);
+    console.log(` - Appt Time: ${scheduledAt.toISOString()}`);
+    console.log(` - 30m Before: ${thirtyMinBefore.toISOString()}`);
+
     if (thirtyMinBefore > now) {
-      console.log(`[DoctorAction] Scheduling 30-min reminder for reappointment`);
+      console.log(`[Reappointment] 🗓️ Scheduling 30-min reminder (Delayed)`);
       await scheduleReminder(id, patient.name, patient.email, thirtyMinBefore, '30min');
     } else if (scheduledAt > now) {
-      console.log(`[DoctorAction] Reappointment is soon. Sending immediate reminder.`);
+      console.log(`[Reappointment] ⚡ Appointment is very soon. Sending IMMEDIATE reminder email.`);
       await sendEmail(
         patient.email,
         'Upcoming Appointment Reminder - HealthCore Clinic',
@@ -244,7 +258,10 @@ export async function scheduleReappointment(patientId: number, date: string, tim
       );
     }
 
-    await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact');
+    if (scheduledAt > now) {
+      console.log(`[Reappointment] 🗓️ Scheduling 'Starting Now' reminder`);
+      await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact');
+    }
   }
 
   revalidatePath('/doctor/dashboard');
