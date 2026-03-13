@@ -27,8 +27,9 @@ export async function updateAppointment(
 
   let scheduledAt: Date | null = null;
   if (appointmentDate && appointmentTime) {
-    // Force format check to avoid 'Invalid Date'
-    const dateStr = `${appointmentDate}T${appointmentTime}:00`;
+    // Force format check to avoid 'Invalid Date' and apply IST (+05:30) 
+    // This ensures local clinic time is used even on UTC servers (Vercel)
+    const dateStr = `${appointmentDate}T${appointmentTime}:00+05:30`;
     scheduledAt = new Date(dateStr);
     
     if (isNaN(scheduledAt.getTime())) {
@@ -170,7 +171,7 @@ export async function setDoctorStatus(status: 'consulting' | 'resting') {
 export async function scheduleReappointment(patientId: number, date: string, time: string) {
   await requireAuth('doctor');
   
-  const dateStr = `${date}T${time}:00`;
+  const dateStr = `${date}T${time}:00+05:30`;
   const scheduledAt = new Date(dateStr);
   
   if (isNaN(scheduledAt.getTime())) {

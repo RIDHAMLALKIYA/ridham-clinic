@@ -73,6 +73,19 @@ export async function createBooking(formData: FormData) {
     emergencyFlag,
   });
 
+  // NEW: Immediate Receipt Email
+  if (email) {
+    try {
+      await sendEmail(
+        email,
+        'Appointment Request Received - HealthCore Clinic',
+        `Hello ${name},\n\nThank you for choosing HealthCore Clinic. We have received your appointment request.\n\nOur team is reviewing it now. You will receive another email with your confirmed time and check-in QR code once your slot is assigned.\n\n${atClinic ? 'Note: You have marked yourself as physically present at the clinic.' : 'We will notify you shortly.'}\n\nBest regards,\nHealthCore Team`
+      );
+    } catch (err) {
+      console.error('[Booking] Email notification failed:', err);
+    }
+  }
+
   revalidatePath('/doctor/dashboard');
   revalidatePath('/admin');
 
