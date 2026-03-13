@@ -253,11 +253,12 @@ export default async function DoctorDashboard() {
                           'use server';
                           const date = formData.get('date') as string;
                           const hour = formData.get('hour') as string;
+                          const minute = formData.get('minute') as string;
                           const ampm = formData.get('ampm') as string;
                           let h = parseInt(hour);
                           if (ampm === 'PM' && h < 12) h += 12;
                           if (ampm === 'AM' && h === 12) h = 0;
-                          const finalTime = `${String(h).padStart(2, '0')}:00`;
+                          const finalTime = `${String(h).padStart(2, '0')}:${minute}`;
                           await updateAppointment(appt.id, 'scheduled', date, finalTime);
                         }}
                         className="space-y-4 pt-2"
@@ -270,23 +271,34 @@ export default async function DoctorDashboard() {
                             defaultValue={today}
                             className="flex-1 bg-white dark:bg-black/50 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3 text-[11px] font-black dark:text-white outline-none focus:border-emerald-500 transition-colors"
                           />
-                          <div className="flex bg-white dark:bg-black/50 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden focus-within:border-emerald-500 transition-colors">
+                          <div className="flex items-center gap-1 bg-white dark:bg-black/50 border border-slate-200 dark:border-white/10 rounded-2xl px-2 focus-within:border-emerald-500 transition-colors">
                             <select
                               name="hour"
-                              className="bg-transparent pl-4 pr-1 py-3 text-[11px] font-black dark:text-white outline-none cursor-pointer"
+                              className="bg-transparent pl-2 pr-1 py-3 text-[11px] font-black dark:text-white outline-none cursor-pointer"
                             >
                               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((h) => (
-                                <option key={h} value={h}>
+                                <option key={h} value={h} className="dark:bg-slate-900">
                                   {h}
+                                </option>
+                              ))}
+                            </select>
+                            <span className="text-slate-400 font-bold">:</span>
+                            <select
+                              name="minute"
+                              className="bg-transparent px-1 py-3 text-[11px] font-black dark:text-white outline-none cursor-pointer"
+                            >
+                              {['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'].map((m) => (
+                                <option key={m} value={m} className="dark:bg-slate-900">
+                                  {m}
                                 </option>
                               ))}
                             </select>
                             <select
                               name="ampm"
-                              className="bg-transparent pl-1 pr-4 py-3 text-[11px] font-black dark:text-white outline-none cursor-pointer"
+                              className="ml-1 bg-slate-100 dark:bg-white/10 rounded-lg px-2 py-1 text-[10px] font-black dark:text-white outline-none cursor-pointer border border-emerald-500/20"
                             >
-                              <option value="AM">AM</option>
-                              <option value="PM">PM</option>
+                              <option value="AM" className="dark:bg-slate-900">AM</option>
+                              <option value="PM" className="dark:bg-slate-900">PM</option>
                             </select>
                           </div>
                         </div>
@@ -562,11 +574,12 @@ export default async function DoctorDashboard() {
                           'use server';
                           const date = formData.get('date') as string;
                           const hour = formData.get('hour') as string;
+                          const minute = formData.get('minute') as string;
                           const ampm = formData.get('ampm') as string;
                           let h = parseInt(hour);
                           if (ampm === 'PM' && h < 12) h += 12;
                           if (ampm === 'AM' && h === 12) h = 0;
-                          const finalTime = `${String(h).padStart(2, '0')}:00`;
+                          const finalTime = `${String(h).padStart(2, '0')}:${minute}`;
                           await scheduleReappointment(appt.patientId, date, finalTime);
                         }}
                         className="space-y-4 bg-slate-50 dark:bg-white/5 p-6 rounded-[2rem]"
@@ -582,23 +595,34 @@ export default async function DoctorDashboard() {
                             defaultValue={today}
                             className="flex-1 bg-white dark:bg-black/50 border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-3 text-[10px] font-black dark:text-white outline-none focus:border-emerald-500"
                           />
-                          <div className="flex bg-white dark:bg-black/50 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden focus-within:border-emerald-500">
+                          <div className="flex items-center gap-1 bg-white dark:bg-black/50 border border-slate-200 dark:border-white/10 rounded-2xl px-2 focus-within:border-emerald-500">
                             <select
                               name="hour"
-                              className="bg-transparent pl-3 pr-1 py-3 text-[10px] font-black dark:text-white outline-none"
+                              className="bg-transparent pl-2 pr-1 py-3 text-[10px] font-black dark:text-white outline-none cursor-pointer"
                             >
                               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((h) => (
-                                <option key={h} value={h}>
+                                <option key={h} value={h} className="dark:bg-slate-900">
                                   {h}
+                                </option>
+                              ))}
+                            </select>
+                            <span className="text-slate-400 font-bold">:</span>
+                            <select
+                              name="minute"
+                              className="bg-transparent px-1 py-3 text-[10px] font-black dark:text-white outline-none cursor-pointer"
+                            >
+                              {['00', '15', '30', '45'].map((m) => (
+                                <option key={m} value={m} className="dark:bg-slate-900">
+                                  {m}
                                 </option>
                               ))}
                             </select>
                             <select
                               name="ampm"
-                              className="bg-transparent pl-1 pr-3 py-3 text-[10px] font-black dark:text-white outline-none"
+                              className="ml-1 bg-slate-100 dark:bg-white/10 rounded-lg px-2 py-1 text-[10px] font-black dark:text-white outline-none cursor-pointer border border-emerald-500/20"
                             >
-                              <option value="AM">AM</option>
-                              <option value="PM">PM</option>
+                              <option value="AM" className="dark:bg-slate-900">AM</option>
+                              <option value="PM" className="dark:bg-slate-900">PM</option>
                             </select>
                           </div>
                         </div>
