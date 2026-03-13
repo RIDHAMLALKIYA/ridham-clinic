@@ -27,7 +27,14 @@ export async function updateAppointment(
 
   let scheduledAt: Date | null = null;
   if (appointmentDate && appointmentTime) {
-    scheduledAt = new Date(`${appointmentDate}T${appointmentTime}`);
+    // Force format check to avoid 'Invalid Date'
+    const dateStr = `${appointmentDate}T${appointmentTime}:00`;
+    scheduledAt = new Date(dateStr);
+    
+    if (isNaN(scheduledAt.getTime())) {
+      console.error(`[DoctorAction] ❌ Invalid date/time format: ${dateStr}`);
+      scheduledAt = null;
+    }
   }
 
   await db
@@ -43,7 +50,9 @@ export async function updateAppointment(
   if (status === 'scheduled' && scheduledAt) {
     const [appt] = await db.select().from(appointments).where(eq(appointments.id, id));
     const [patient] = await db.select().from(patients).where(eq(patients.id, appt.patientId));
+    
     if (patient?.email) {
+      console.log(`[DoctorAction] Processing confirmation for ${patient.name} (${patient.email})`);
       const qrCodeDataUrl = await generateAppointmentQRCode(id, patient.email);
       
       const emailText = `Hello ${patient.name},\n\nYour appointment at HealthCore Clinic is confirmed for ${appointmentDate} at ${formatTime12h(appointmentTime || '')}.\n\nPlease find your unique check-in QR code attached below. You can use this to check-in when you arrive at the clinic.\n\nWe look forward to seeing you!\n\nBest regards,\nHealthCore Team`;
@@ -66,6 +75,7 @@ export async function updateAppointment(
         </div>
       `;
 
+      // Send confirmation synchronously
       await sendEmail(
         patient.email,
         'Appointment Confirmed - HealthCore Clinic',
@@ -78,15 +88,21 @@ export async function updateAppointment(
         }]
       );
 
+      const now = new Date();
       const thirtyMinBefore = new Date(scheduledAt.getTime() - 30 * 60 * 1000);
-      if (thirtyMinBefore > new Date()) {
+
+      if (thirtyMinBefore > now) {
+        console.log(`[DoctorAction] Scheduling 30-min reminder for ${thirtyMinBefore.toISOString()}`);
         await scheduleReminder(id, patient.name, patient.email, thirtyMinBefore, '30min');
-      } else if (scheduledAt > new Date()) {
+      } else if (scheduledAt > now) {
+        console.log(`[DoctorAction] Appointment is soon (<30 mins). Sending immediate reminder.`);
         await sendEmail(
           patient.email,
           'Upcoming Appointment Reminder - HealthCore Clinic',
-          `Hello ${patient.name},\n\nYour appointment at HealthCore Clinic is approaching shortly. We look forward to seeing you!\n\nBest regards,\nHealthCore Team`
+          `Hello ${patient.name},\n\nYour appointment at HealthCore Clinic is approaching shortly (at ${formatTime12h(appointmentTime || '')}). We look forward to seeing you!\n\nBest regards,\nHealthCore Team`
         );
+      } else {
+        console.warn(`[DoctorAction] ⚠️ Appointment is in the past. No reminders scheduled.`);
       }
 
       await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact');
@@ -94,7 +110,6 @@ export async function updateAppointment(
   }
 
   revalidatePath('/doctor/dashboard');
-  revalidatePath('/queue');
   revalidatePath('/admin');
 }
 
