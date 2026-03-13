@@ -147,6 +147,7 @@ export async function qrCheckIn(qrData: string) {
       .select({
         id: appointments.id,
         status: appointments.status,
+        appointmentDate: appointments.appointmentDate,
         appointmentTime: appointments.appointmentTime,
         patientName: patients.name,
         patientEmail: patients.email,
@@ -162,6 +163,12 @@ export async function qrCheckIn(qrData: string) {
 
     if (appt.patientEmail !== patientEmail) {
       return { success: false, error: 'Invalid patient record for this appointment.' };
+    }
+
+    // Check if the appointment is for today
+    const today = new Date().toLocaleDateString('en-CA');
+    if (appt.appointmentDate && appt.appointmentDate !== today) {
+      return { success: false, error: 'This appointment is not scheduled for today.' };
     }
 
     if (appt.status === 'arrived' || appt.status === 'called' || appt.status === 'completed') {
