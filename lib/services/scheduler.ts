@@ -8,6 +8,9 @@ const qstashClient = new Client({
   token: qstashToken || '',
 });
 
+// Helper to format date for logging
+const fmt = (d: Date) => d.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
 export async function scheduleReminder(
   appointmentId: number,
   patientName: string,
@@ -16,20 +19,31 @@ export async function scheduleReminder(
   messageType: '30min' | 'exact'
 ) {
   const delay = Math.floor((scheduleTime.getTime() - Date.now()) / 1000);
+  const now = new Date();
+
+  console.log(`[Scheduler] Attempting to schedule '${messageType}' for ${patientName}`);
+  console.log(`[Scheduler] Target Time: ${fmt(scheduleTime)} | Current Time: ${fmt(now)}`);
+  console.log(`[Scheduler] Calculated Delay: ${delay} seconds (${(delay / 60).toFixed(1)} mins)`);
 
   // Don't schedule if the time is in the past
-  if (delay <= 0) return;
+  if (delay <= 0) {
+    console.warn(`[Scheduler] ⚠️ Skipping: Schedule time is in the past.`);
+    return;
+  }
 
-  // LOCAL MODE: If on localhost or missing QStash token, use setTimeout
-  // This ensures it works for you locally without needing a domain/ngrok.
+  // LOCAL MODE: If on localhost OR strictly missing QStash token
+  // If appUrl is set to something else but token is missing, we still fallback to local
   const isLocal = appUrl.includes('localhost') || !qstashToken;
 
   if (isLocal) {
-    console.log(
-      `[Local Scheduler] Reminder set for ${patientName} in ${delay} seconds (${messageType})`
-    );
+    if (!appUrl.includes('localhost')) {
+      console.warn(`[Scheduler] ⚠️ WARNING: Running in 'Local Mode' on a non-localhost URL (${appUrl}). Reminders will likely fail if this is a serverless environment (Vercel). Please set QSTASH_TOKEN.`);
+    }
+
+    console.log(`[Local Timer] ✅ Timer started for ${patientName} (${messageType}). Will execute in ${delay}s.`);
 
     setTimeout(async () => {
+      console.log(`[Local Timer] 🔔 Executing '${messageType}' reminder for ${patientName} (${email})`);
       let subject = 'Appointment Reminder - HealthCore Clinic';
       let message = '';
 
@@ -42,9 +56,9 @@ export async function scheduleReminder(
 
       try {
         await sendEmail(email, subject, message);
-        console.log(`[Local Scheduler] Reminder sent to ${email}`);
+        console.log(`[Local Timer] 📧 Email sent to ${email}`);
       } catch (err) {
-        console.error(`[Local Scheduler] Failed to send email:`, err);
+        console.error(`[Local Timer] ❌ Failed to send email:`, err);
       }
     }, delay * 1000);
 
@@ -63,11 +77,9 @@ export async function scheduleReminder(
       },
       delay: delay,
     });
-    console.log(
-      `[QStash] Reminder scheduled for ${scheduleTime.toISOString()}: ${result.messageId}`
-    );
+    console.log(`[QStash] ✅ Scheduled successfully: ${result.messageId}`);
     return result;
   } catch (error) {
-    console.error('[QStash] Error scheduling reminder:', error);
+    console.error('[QStash] ❌ Error scheduling reminder:', error);
   }
 }
