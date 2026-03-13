@@ -169,7 +169,15 @@ export async function setDoctorStatus(status: 'consulting' | 'resting') {
 
 export async function scheduleReappointment(patientId: number, date: string, time: string) {
   await requireAuth('doctor');
-  const scheduledAt = new Date(`${date}T${time}`);
+  
+  const dateStr = `${date}T${time}:00`;
+  const scheduledAt = new Date(dateStr);
+  
+  if (isNaN(scheduledAt.getTime())) {
+    console.error(`[DoctorAction] ❌ Invalid reappointment date/time: ${dateStr}`);
+    throw new Error('Invalid date or time format');
+  }
+
   const result = await db
     .insert(appointments)
     .values({
@@ -185,15 +193,16 @@ export async function scheduleReappointment(patientId: number, date: string, tim
   const [patient] = await db.select().from(patients).where(eq(patients.id, patientId));
 
   if (patient?.email) {
+    console.log(`[DoctorAction] Processing reappointment for ${patient.name}`);
     const qrCodeDataUrl = await generateAppointmentQRCode(id, patient.email);
     
-    const emailText = `Hello ${patient.name},\n\nYour appointment at HealthCore Clinic is confirmed for ${date} at ${formatTime12h(time)}.\n\nPlease find your unique check-in QR code attached below. You can use this to check-in when you arrive at the clinic.\n\nWe look forward to seeing you!\n\nBest regards,\nHealthCore Team`;
+    const emailText = `Hello ${patient.name},\n\nYour follow-up appointment at HealthCore Clinic is confirmed for ${date} at ${formatTime12h(time)}.\n\nPlease find your unique check-in QR code attached below.\n\nWe look forward to seeing you!\n\nBest regards,\nHealthCore Team`;
     
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-        <h2 style="color: #2563eb;">Appointment Confirmed!</h2>
+        <h2 style="color: #2563eb;">Follow-up Confirmed!</h2>
         <p>Hello <strong>${patient.name}</strong>,</p>
-        <p>Your appointment at <strong>HealthCore Clinic</strong> is confirmed for:</p>
+        <p>Your follow-up appointment at <strong>HealthCore Clinic</strong> is confirmed for:</p>
         <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <p style="margin: 5px 0;"><strong>Date:</strong> ${date}</p>
           <p style="margin: 5px 0;"><strong>Time:</strong> ${formatTime12h(time)}</p>
@@ -209,7 +218,7 @@ export async function scheduleReappointment(patientId: number, date: string, tim
 
     await sendEmail(
       patient.email,
-      'Appointment Confirmed - HealthCore Clinic',
+      'Follow-up Appointment Confirmed - HealthCore Clinic',
       emailText,
       emailHtml,
       [{
@@ -219,14 +228,18 @@ export async function scheduleReappointment(patientId: number, date: string, tim
       }]
     );
 
+    const now = new Date();
     const thirtyMinBefore = new Date(scheduledAt.getTime() - 30 * 60 * 1000);
-    if (thirtyMinBefore > new Date()) {
+
+    if (thirtyMinBefore > now) {
+      console.log(`[DoctorAction] Scheduling 30-min reminder for reappointment`);
       await scheduleReminder(id, patient.name, patient.email, thirtyMinBefore, '30min');
-    } else if (scheduledAt > new Date()) {
+    } else if (scheduledAt > now) {
+      console.log(`[DoctorAction] Reappointment is soon. Sending immediate reminder.`);
       await sendEmail(
         patient.email,
         'Upcoming Appointment Reminder - HealthCore Clinic',
-        `Hello ${patient.name},\n\nYour appointment at HealthCore Clinic is approaching shortly. We look forward to seeing you!\n\nBest regards,\nHealthCore Team`
+        `Hello ${patient.name},\n\nYour follow-up appointment at HealthCore Clinic is approaching shortly (at ${formatTime12h(time)}). We look forward to seeing you!\n\nBest regards,\nHealthCore Team`
       );
     }
 
@@ -234,8 +247,8 @@ export async function scheduleReappointment(patientId: number, date: string, tim
   }
 
   revalidatePath('/doctor/dashboard');
-  revalidatePath('/queue');
 }
+
 export async function markAsNotArrived(appointmentId: number) {
   await requireAuth('doctor');
 
