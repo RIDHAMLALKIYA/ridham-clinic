@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getSession } from './lib/auth';
+import { getSession, updateSession } from './lib/auth';
 
 export async function middleware(request: NextRequest) {
   const session = await getSession();
@@ -11,6 +11,10 @@ export async function middleware(request: NextRequest) {
     if (!session) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
+
+    // Auto-renew session on every protected page visit
+    const renewedResponse = await updateSession(request);
+    if (renewedResponse) return renewedResponse;
   }
 
   // Redirect logged-in users away from login page

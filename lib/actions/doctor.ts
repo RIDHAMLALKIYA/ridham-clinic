@@ -130,6 +130,18 @@ export async function updateAppointment(
 
 export async function callPatient(appointmentId: number) {
   await requireAuth('doctor');
+
+  // Race Condition Guard: Verify the appointment is still in 'arrived' status
+  const [targetAppt] = await db
+    .select({ id: appointments.id, status: appointments.status })
+    .from(appointments)
+    .where(eq(appointments.id, appointmentId));
+
+  if (!targetAppt || targetAppt.status !== 'arrived') {
+    console.warn(`[CallPatient] ⚠️ Skipped: Appointment ${appointmentId} is not in 'arrived' status (current: ${targetAppt?.status}).`);
+    return;
+  }
+
   const today = new Date().toLocaleDateString('en-CA');
   await db
     .update(appointments)
@@ -139,7 +151,12 @@ export async function callPatient(appointmentId: number) {
       appointmentDate: today,
     })
     .where(eq(appointments.status, 'called'));
-  await db.update(appointments).set({ status: 'called' }).where(eq(appointments.id, appointmentId));
+
+  // Only update if still 'arrived' (database-level lock)
+  await db
+    .update(appointments)
+    .set({ status: 'called' })
+    .where(and(eq(appointments.id, appointmentId), eq(appointments.status, 'arrived')));
   
   // Trigger Queue Position Notifications (Backgrounded to avoid UI delay)
   processQueueNotifications().catch(err => console.error('[QueueSync] Notification error:', err));
