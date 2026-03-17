@@ -139,11 +139,15 @@ export async function rejectAppointment(id: number) {
   if (appt) {
     const [patient] = await db.select().from(patients).where(eq(patients.id, appt.patientId));
     if (patient?.email) {
-      await sendEmail(
-        patient.email,
-        'Appointment Cancelled - HealthCore Clinic',
-        `Hello ${patient.name},\n\nWe regret to inform you that your appointment request at HealthCore Clinic has been cancelled. This might be due to a scheduling conflict or unavailability.\n\nYou are welcome to try booking another time slot that works for you.\n\nBest regards,\nHealthCore Team`
-      );
+      try {
+        await sendEmail(
+          patient.email,
+          'Appointment Cancelled - HealthCore Clinic',
+          `Hello ${patient.name},\n\nWe regret to inform you that your appointment request at HealthCore Clinic has been cancelled. This might be due to a scheduling conflict or unavailability.\n\nYou are welcome to try booking another time slot that works for you.\n\nBest regards,\nHealthCore Team`
+        );
+      } catch (err) {
+        console.error('[RejectAppointment] Email notification failed:', err);
+      }
     }
   }
 

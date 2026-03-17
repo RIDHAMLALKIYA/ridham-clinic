@@ -78,44 +78,48 @@ export async function updateAppointment(
       `;
 
       // Send confirmation synchronously
-      await sendEmail(
-        patient.email,
-        'Appointment Confirmed - HealthCore Clinic',
-        emailText,
-        emailHtml,
-        [{
-          filename: 'checkin-qr.png',
-          path: qrCodeDataUrl,
-          cid: 'qrcode'
-        }]
-      );
-
-      const now = new Date();
-      const thirtyMinBefore = new Date(scheduledAt.getTime() - 30 * 60 * 1000);
-
-      console.log(`[DoctorAction] Time Diagnosis:`);
-      console.log(` - Current Time: ${now.toISOString()}`);
-      console.log(` - Appt Time: ${scheduledAt.toISOString()}`);
-      console.log(` - 30m Before: ${thirtyMinBefore.toISOString()}`);
-
-      if (thirtyMinBefore > now) {
-        console.log(`[DoctorAction] 🗓️ Scheduling 30-min reminder (Delayed)`);
-        await scheduleReminder(id, patient.name, patient.email, thirtyMinBefore, '30min');
-      } else if (scheduledAt > now) {
-        console.log(`[DoctorAction] ⚡ Appointment is very soon. Sending IMMEDIATE reminder email.`);
+      try {
         await sendEmail(
           patient.email,
-          'Upcoming Appointment Reminder - HealthCore Clinic',
-          `Hello ${patient.name},\n\nYour appointment at HealthCore Clinic is approaching shortly (at ${formatTime12h(appointmentTime || '')}). We look forward to seeing you!\n\nBest regards,\nHealthCore Team`
+          'Appointment Confirmed - HealthCore Clinic',
+          emailText,
+          emailHtml,
+          [{
+            filename: 'checkin-qr.png',
+            path: qrCodeDataUrl,
+            cid: 'qrcode'
+          }]
         );
-      } else {
-        console.warn(`[DoctorAction] ⚠️ Appointment is in the past. Skipping 30min automation.`);
-      }
 
-      // Always schedule the "Starting Now" reminder if it's still in the future
-      if (scheduledAt > now) {
-        console.log(`[DoctorAction] 🗓️ Scheduling 'Starting Now' reminder`);
-        await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact');
+        const now = new Date();
+        const thirtyMinBefore = new Date(scheduledAt.getTime() - 30 * 60 * 1000);
+
+        console.log(`[DoctorAction] Time Diagnosis:`);
+        console.log(` - Current Time: ${now.toISOString()}`);
+        console.log(` - Appt Time: ${scheduledAt.toISOString()}`);
+        console.log(` - 30m Before: ${thirtyMinBefore.toISOString()}`);
+
+        if (thirtyMinBefore > now) {
+          console.log(`[DoctorAction] 🗓️ Scheduling 30-min reminder (Delayed)`);
+          await scheduleReminder(id, patient.name, patient.email, thirtyMinBefore, '30min');
+        } else if (scheduledAt > now) {
+          console.log(`[DoctorAction] ⚡ Appointment is very soon. Sending IMMEDIATE reminder email.`);
+          await sendEmail(
+            patient.email,
+            'Upcoming Appointment Reminder - HealthCore Clinic',
+            `Hello ${patient.name},\n\nYour appointment at HealthCore Clinic is approaching shortly (at ${formatTime12h(appointmentTime || '')}). We look forward to seeing you!\n\nBest regards,\nHealthCore Team`
+          );
+        } else {
+          console.warn(`[DoctorAction] ⚠️ Appointment is in the past. Skipping 30min automation.`);
+        }
+
+        // Always schedule the "Starting Now" reminder if it's still in the future
+        if (scheduledAt > now) {
+          console.log(`[DoctorAction] 🗓️ Scheduling 'Starting Now' reminder`);
+          await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact');
+        }
+      } catch (err) {
+        console.error('[DoctorAction] Email/Automation notification failed:', err);
       }
     }
   }
@@ -235,41 +239,45 @@ export async function scheduleReappointment(patientId: number, date: string, tim
       </div>
     `;
 
-    await sendEmail(
-      patient.email,
-      'Follow-up Appointment Confirmed - HealthCore Clinic',
-      emailText,
-      emailHtml,
-      [{
-        filename: 'checkin-qr.png',
-        path: qrCodeDataUrl,
-        cid: 'qrcode'
-      }]
-    );
-
-    const now = new Date();
-    const thirtyMinBefore = new Date(scheduledAt.getTime() - 30 * 60 * 1000);
-
-    console.log(`[Reappointment] Time Diagnosis:`);
-    console.log(` - Current Time: ${now.toISOString()}`);
-    console.log(` - Appt Time: ${scheduledAt.toISOString()}`);
-    console.log(` - 30m Before: ${thirtyMinBefore.toISOString()}`);
-
-    if (thirtyMinBefore > now) {
-      console.log(`[Reappointment] 🗓️ Scheduling 30-min reminder (Delayed)`);
-      await scheduleReminder(id, patient.name, patient.email, thirtyMinBefore, '30min');
-    } else if (scheduledAt > now) {
-      console.log(`[Reappointment] ⚡ Appointment is very soon. Sending IMMEDIATE reminder email.`);
+    try {
       await sendEmail(
         patient.email,
-        'Upcoming Appointment Reminder - HealthCore Clinic',
-        `Hello ${patient.name},\n\nYour follow-up appointment at HealthCore Clinic is approaching shortly (at ${formatTime12h(time)}). We look forward to seeing you!\n\nBest regards,\nHealthCore Team`
+        'Follow-up Appointment Confirmed - HealthCore Clinic',
+        emailText,
+        emailHtml,
+        [{
+          filename: 'checkin-qr.png',
+          path: qrCodeDataUrl,
+          cid: 'qrcode'
+        }]
       );
-    }
 
-    if (scheduledAt > now) {
-      console.log(`[Reappointment] 🗓️ Scheduling 'Starting Now' reminder`);
-      await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact');
+      const now = new Date();
+      const thirtyMinBefore = new Date(scheduledAt.getTime() - 30 * 60 * 1000);
+
+      console.log(`[Reappointment] Time Diagnosis:`);
+      console.log(` - Current Time: ${now.toISOString()}`);
+      console.log(` - Appt Time: ${scheduledAt.toISOString()}`);
+      console.log(` - 30m Before: ${thirtyMinBefore.toISOString()}`);
+
+      if (thirtyMinBefore > now) {
+        console.log(`[Reappointment] 🗓️ Scheduling 30-min reminder (Delayed)`);
+        await scheduleReminder(id, patient.name, patient.email, thirtyMinBefore, '30min');
+      } else if (scheduledAt > now) {
+        console.log(`[Reappointment] ⚡ Appointment is very soon. Sending IMMEDIATE reminder email.`);
+        await sendEmail(
+          patient.email,
+          'Upcoming Appointment Reminder - HealthCore Clinic',
+          `Hello ${patient.name},\n\nYour follow-up appointment at HealthCore Clinic is approaching shortly (at ${formatTime12h(time)}). We look forward to seeing you!\n\nBest regards,\nHealthCore Team`
+        );
+      }
+
+      if (scheduledAt > now) {
+        console.log(`[Reappointment] 🗓️ Scheduling 'Starting Now' reminder`);
+        await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact');
+      }
+    } catch (err) {
+      console.error('[Reappointment] Automation/Email failed:', err);
     }
   }
 

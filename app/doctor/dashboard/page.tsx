@@ -7,6 +7,7 @@ import {
   logoutUser,
   dismissFollowUp,
 } from '@/lib/actions';
+import FollowupManager from '@/components/doctor/FollowupManager';
 import {
   RotateCcw,
   LogOut,
@@ -94,7 +95,7 @@ export default async function DoctorDashboard() {
     .from(appointments)
     .where(
       and(
-        or(eq(appointments.status, 'completed'), eq(appointments.status, 'finalized')),
+        or(eq(appointments.status, 'completed'), eq(appointments.status, 'called')),
         eq(appointments.appointmentDate, today)
       )
     ),
@@ -109,11 +110,12 @@ export default async function DoctorDashboard() {
     .innerJoin(patients, eq(appointments.patientId, patients.id))
     .where(
       and(
-        or(eq(appointments.status, 'completed'), eq(appointments.status, 'finalized')),
+        eq(appointments.status, 'completed'),
         eq(appointments.appointmentDate, today)
       )
     )
     .orderBy(desc(appointments.id))
+    .limit(10)
   ]);
 
   const currentStatus = (docStatusSetting[0]?.value || 'consulting') as 'consulting' | 'resting';
@@ -244,121 +246,7 @@ export default async function DoctorDashboard() {
 
           {/* SECOND VISIT / FOLLOW-UP */}
           <AnimatedWrapper delay={0.3} direction="up">
-            <div className="glass-vip-polished rounded-[4rem] p-10 md:p-14 border border-white/20 shadow-2xl relative overflow-hidden group">
-              <div className="flex flex-col md:flex-row items-center justify-between mb-12 text-left px-4">
-                <h2 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-6 uppercase tracking-tighter">
-                  <RotateCcw className="w-10 h-10 text-emerald-600" />
-                  Follow-up / Re-visits
-                </h2>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">
-                  Recent Completed Cases
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {recentAttended.length === 0 ? (
-                  <div className="col-span-full py-12 text-center opacity-20 italic">
-                    No patients seen yet today
-                  </div>
-                ) : (
-                  recentAttended.map((appt) => (
-                    <div
-                      key={appt.id}
-                      className="p-8 bg-white/40 dark:bg-black/40 backdrop-blur-3xl border border-slate-200/50 dark:border-white/10 rounded-[2.8rem] space-y-6"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-5">
-                          <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-black">
-                            <UserCheck size={20} />
-                          </div>
-                          <h3 className="font-black text-slate-900 dark:text-white uppercase tracking-tighter text-xl">
-                            {appt.patientName}
-                          </h3>
-                        </div>
-                        <form
-                          action={async () => {
-                            'use server';
-                            await dismissFollowUp(appt.id);
-                          }}
-                        >
-                          <button
-                            type="submit"
-                            className="p-3 bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-red-500 rounded-xl transition-all active:scale-90"
-                          >
-                            <X size={16} />
-                          </button>
-                        </form>
-                      </div>
-
-                      <form
-                        action={async (formData) => {
-                          'use server';
-                          const date = formData.get('date') as string;
-                          const hour = formData.get('hour') as string;
-                          const minute = formData.get('minute') as string;
-                          const ampm = formData.get('ampm') as string;
-                          let h = parseInt(hour);
-                          if (ampm === 'PM' && h < 12) h += 12;
-                          if (ampm === 'AM' && h === 12) h = 0;
-                          const finalTime = `${String(h).padStart(2, '0')}:${minute}`;
-                          await scheduleReappointment(appt.patientId, date, finalTime);
-                        }}
-                        className="space-y-4 bg-slate-50 dark:bg-white/5 p-6 rounded-[2rem]"
-                      >
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">
-                          Schedule next visit
-                        </p>
-                        <div className="flex gap-3">
-                          <input
-                            type="date"
-                            name="date"
-                            required
-                            defaultValue={today}
-                            className="flex-1 bg-white dark:bg-black/50 border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-3 text-[10px] font-black dark:text-white outline-none focus:border-emerald-500"
-                          />
-                          <div className="flex items-center gap-1 bg-white dark:bg-black/50 border border-slate-200 dark:border-white/10 rounded-2xl px-2 focus-within:border-emerald-500">
-                            <select
-                              name="hour"
-                              className="bg-transparent pl-2 pr-1 py-3 text-[10px] font-black dark:text-white outline-none cursor-pointer"
-                            >
-                              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((h) => (
-                                <option key={h} value={h} className="dark:bg-slate-900">
-                                  {h}
-                                </option>
-                              ))}
-                            </select>
-                            <span className="text-slate-400 font-bold">:</span>
-                            <select
-                              name="minute"
-                              className="bg-transparent px-1 py-3 text-[10px] font-black dark:text-white outline-none cursor-pointer"
-                            >
-                              {['00', '15', '30', '45'].map((m) => (
-                                <option key={m} value={m} className="dark:bg-slate-900">
-                                  {m}
-                                </option>
-                              ))}
-                            </select>
-                            <select
-                              name="ampm"
-                              className="ml-1 bg-slate-100 dark:bg-emerald-600/20 rounded-lg px-1 py-1 text-[9px] font-black dark:text-white outline-none cursor-pointer border border-emerald-500/20 w-12"
-                            >
-                              <option value="AM" className="dark:bg-slate-900">AM</option>
-                              <option value="PM" className="dark:bg-slate-900">PM</option>
-                            </select>
-                          </div>
-                        </div>
-                        <button
-                          type="submit"
-                          className="w-full py-4 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-[1.5rem] shadow-xl hover:bg-emerald-500 active:scale-95 transition-all"
-                        >
-                          Book Re-visit
-                        </button>
-                      </form>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+            <FollowupManager initialList={recentAttended} />
           </AnimatedWrapper>
         </div>
       </div>
