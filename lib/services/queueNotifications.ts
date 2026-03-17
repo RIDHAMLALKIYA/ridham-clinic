@@ -1,6 +1,6 @@
 import { db } from '@/db';
-import { appointments, patients } from '@/db/schema';
-import { eq, and, desc, asc, not } from 'drizzle-orm';
+import { appointments, patients, settings } from '@/db/schema';
+import { eq, desc } from 'drizzle-orm';
 import { sendEmail } from './mail';
 
 /**
@@ -28,6 +28,12 @@ export async function processQueueNotifications() {
     if (!patient.patientEmail) continue;
 
     if (position === 10 || position === 20) {
+      // PREVENT EMAIL SPAM BUG: Ensure we only send the notification once per appointment/position
+      const settingKey = `q_notif_${position}_${patient.id}`;
+      const [alreadyNotified] = await db.select().from(settings).where(eq(settings.key, settingKey));
+      
+      if (alreadyNotified) continue;
+
       console.log(`[QueueNotifier] 📧 Notifying ${patient.patientName} (Pos: ${position})`);
       
       const message = `Hello ${patient.patientName},\n\nYou are moving up in the queue! You are now at position ${position} at HealthCore Clinic.\n\nPlease stay close to the clinic area. We will notify you again when you are next in line.\n\nBest regards,\nHealthCore Team`;
@@ -38,6 +44,8 @@ export async function processQueueNotifications() {
           `Queue Update: Position ${position} - HealthCore Clinic`,
           message
         );
+        // Lock this notification so it never sends again for this appointment
+        await db.insert(settings).values({ key: settingKey, value: 'sent' });
       } catch (err) {
         console.error(`[QueueNotifier] Failed to notify patient ${patient.id}:`, err);
       }

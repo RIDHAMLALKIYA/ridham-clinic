@@ -77,7 +77,7 @@ export default function QueueClient({
                   >
                     <div className="w-full px-4 overflow-hidden">
                       <ScrollingName
-                        name="PLEASE WAIT"
+                        name={isResting && !nowServing ? "DOCTOR ON BREAK" : "PLEASE WAIT"}
                         className="text-6xl sm:text-8xl md:text-[14rem] lg:text-[22rem] xl:text-[28rem] font-black text-white/5 tracking-tighter leading-none italic uppercase"
                       />
                     </div>
@@ -199,9 +199,14 @@ export default function QueueClient({
                                  <span className="bg-white/20 text-white text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest animate-pulse">Next</span>
                               )}
                            </div>
-                           <div
-                              className={`h-1 w-8 md:h-1.5 md:w-12 rounded-full mt-2 md:mt-3 ${idx === 0 ? 'bg-white/40' : 'bg-emerald-500/20'}`}
-                           ></div>
+                           <div className="flex items-center mt-2 md:mt-3 gap-3 opacity-80">
+                             <div className={`h-1 w-8 md:h-1.5 md:w-12 rounded-full ${idx === 0 ? 'bg-white/60' : 'bg-emerald-500/30'}`}></div>
+                             {idx > 0 && (
+                               <span className="text-[9px] md:text-[10px] font-black uppercase text-slate-400 tracking-widest bg-white/5 px-2 md:px-3 py-0.5 rounded border border-white/5">
+                                 ~{idx * 15} MIN WAIT
+                               </span>
+                             )}
+                           </div>
                         </div>
                         {appt.emergency && (
                           <div className="flex items-center gap-2 bg-red-600 px-4 py-2 rounded-xl shadow-lg animate-pulse">
