@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { sendEmail } from '@/lib/services/mail';
 import { getSession } from '@/lib/auth';
+import { processQueueNotifications } from '@/lib/services/queueNotifications';
 import { validatePhoneNumber } from '@/lib/validations/appointment.validation';
 
 // Security Helper
@@ -123,6 +124,8 @@ export async function patientCheckIn(
     })
     .where(eq(appointments.id, appt.id));
 
+  await processQueueNotifications();
+
   revalidatePath('/doctor/dashboard');
   revalidatePath('/queue');
   revalidatePath('/admin');
@@ -195,6 +198,8 @@ export async function qrCheckIn(qrData: string) {
         status: 'arrived',
       })
       .where(eq(appointments.id, appointmentId));
+
+    await processQueueNotifications();
 
     revalidatePath('/doctor/dashboard');
     revalidatePath('/queue');

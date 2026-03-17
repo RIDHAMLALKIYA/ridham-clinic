@@ -37,7 +37,7 @@ export default async function QueueDisplayPage() {
     .from(appointments)
     .innerJoin(patients, eq(appointments.patientId, patients.id))
     .where(eq(appointments.status, 'arrived'))
-    .orderBy(appointments.id);
+    .orderBy(desc(appointments.emergencyFlag), appointments.id);
 
   const recentlyCalled = await db
     .select({

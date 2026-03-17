@@ -2,13 +2,14 @@
 
 import { db } from '@/db';
 import { patients, appointments, settings } from '@/db/schema';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, or, desc, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { sendEmail } from '@/lib/services/mail';
 import { scheduleReminder } from '@/lib/services/scheduler';
 import { getSession } from '@/lib/auth';
 import { formatTime12h } from '@/lib/utils';
 import { generateAppointmentQRCode } from '@/lib/services/qr';
+import { processQueueNotifications } from '@/lib/services/queueNotifications';
 
 // Security Helper
 async function requireAuth(role?: 'doctor' | 'admin') {
@@ -135,6 +136,10 @@ export async function callPatient(appointmentId: number) {
     })
     .where(eq(appointments.status, 'called'));
   await db.update(appointments).set({ status: 'called' }).where(eq(appointments.id, appointmentId));
+  
+  // Trigger Queue Position Notifications
+  await processQueueNotifications();
+
   revalidatePath('/doctor/dashboard');
   revalidatePath('/queue');
 }
@@ -171,6 +176,10 @@ export async function setDoctorStatus(status: 'consulting' | 'resting') {
     await db.update(settings).set({ value: status }).where(eq(settings.key, 'doctor_status'));
   } else {
     await db.insert(settings).values({ key: 'doctor_status', value: status });
+  }
+  
+  if (status === 'consulting') {
+    await processQueueNotifications();
   }
 
   revalidatePath('/doctor/dashboard');
@@ -304,4 +313,25 @@ export async function getNotificationCounts() {
     requests: Number(reqData[0]?.count || 0),
     queue: Number(queueData[0]?.count || 0)
   };
+}
+
+export async function getAttendedPatientsByDate(date: string) {
+  await requireAuth('doctor');
+  
+  return await db
+    .select({
+      id: appointments.id,
+      patientName: patients.name,
+      phone: patients.phoneNumber,
+      email: patients.email,
+    })
+    .from(appointments)
+    .innerJoin(patients, eq(appointments.patientId, patients.id))
+    .where(
+      and(
+        or(eq(appointments.status, 'completed'), eq(appointments.status, 'finalized')),
+        eq(appointments.appointmentDate, date)
+      )
+    )
+    .orderBy(desc(appointments.id));
 }

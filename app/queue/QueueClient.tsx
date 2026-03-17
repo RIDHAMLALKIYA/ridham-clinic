@@ -190,17 +190,23 @@ export default function QueueClient({
                           {idx + 1}
                         </div>
                         <div className="flex-1 overflow-hidden">
-                          <ScrollingName
-                            name={appt.patientName}
-                            className={`text-xl md:text-2xl lg:text-3xl xl:text-4xl font-black uppercase tracking-tighter ${idx === 0 ? 'text-white' : 'text-slate-300'}`}
-                          />
-                          <div
-                            className={`h-1 w-8 md:h-1.5 md:w-12 rounded-full mt-2 md:mt-3 ${idx === 0 ? 'bg-white/40' : 'bg-emerald-500/20'}`}
-                          ></div>
+                           <div className="flex items-center gap-4">
+                              <ScrollingName
+                                 name={appt.patientName}
+                                 className={`text-xl md:text-2xl lg:text-3xl xl:text-4xl font-black uppercase tracking-tighter ${idx === 0 ? 'text-white' : 'text-slate-300'}`}
+                              />
+                              {idx === 0 && (
+                                 <span className="bg-white/20 text-white text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest animate-pulse">Next</span>
+                              )}
+                           </div>
+                           <div
+                              className={`h-1 w-8 md:h-1.5 md:w-12 rounded-full mt-2 md:mt-3 ${idx === 0 ? 'bg-white/40' : 'bg-emerald-500/20'}`}
+                           ></div>
                         </div>
                         {appt.emergency && (
-                          <div className="flex-shrink-0 bg-red-500/20 p-2 md:p-3 rounded-full">
-                            <Zap className="w-5 h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 text-red-500 animate-pulse" />
+                          <div className="flex items-center gap-2 bg-red-600 px-4 py-2 rounded-xl shadow-lg animate-pulse">
+                            <Zap size={14} className="text-white fill-current" />
+                            <span className="text-[10px] font-black text-white uppercase tracking-widest">Urgent</span>
                           </div>
                         )}
                       </motion.div>
