@@ -313,7 +313,7 @@ export async function markAsNotArrived(appointmentId: number) {
     await sendEmail(
       patient.email,
       'Missed Appointment - HealthCore Clinic',
-      `Hello ${patient.name},\n\nWe noticed that you were unable to attend your scheduled appointment today. \n\nYou can easily reschedule your visit by clicking the link below:\n👉 [Reschedule My Appointment](http://localhost:3000/book)\n\nAlternatively, you can reply directly to this email or contact us at +91 98765 43210.\n\nBest regards,\nHealthCore Team`
+      `Hello ${patient.name},\n\nWe noticed that you were unable to attend your scheduled appointment today. \n\nYou can easily reschedule your visit by clicking the link below:\n👉 [Reschedule My Appointment](${process.env.NEXT_PUBLIC_APP_URL || 'https://ridham-clinic-v1.vercel.app'})\n\nAlternatively, you can reply directly to this email or contact us.\n\nBest regards,\nHealthCore Team`
     );
   }
 

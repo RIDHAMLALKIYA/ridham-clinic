@@ -2,8 +2,11 @@ import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-const secretKey = 'secret';
-const key = new TextEncoder().encode(process.env.AUTH_SECRET || secretKey);
+const secretKey = process.env.AUTH_SECRET;
+if (!secretKey) {
+  throw new Error('AUTH_SECRET environment variable is required. Please set it in your .env file.');
+}
+const key = new TextEncoder().encode(secretKey);
 
 export async function encrypt(payload: any) {
   return await new SignJWT(payload)

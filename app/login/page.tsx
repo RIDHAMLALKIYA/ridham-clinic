@@ -89,6 +89,7 @@ export default function LoginPage() {
                 </div>
               </form>
 
+              {typeof window !== 'undefined' && window.location.hostname === 'localhost' && (
               <div className="mt-10 pt-10 border-t border-slate-100 dark:border-white/5">
                 <form
                   action={async () => {
@@ -105,6 +106,7 @@ export default function LoginPage() {
                   </button>
                 </form>
               </div>
+              )}
             </div>
           </div>
         </AnimatedWrapper>
