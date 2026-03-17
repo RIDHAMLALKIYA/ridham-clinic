@@ -124,7 +124,7 @@ export async function patientCheckIn(
     })
     .where(eq(appointments.id, appt.id));
 
-  await processQueueNotifications();
+  processQueueNotifications().catch(err => console.error('[CheckInSync] Notification error:', err));
 
   revalidatePath('/doctor/dashboard');
   revalidatePath('/queue');
@@ -139,12 +139,14 @@ export async function rejectAppointment(id: number) {
   if (appt) {
     const [patient] = await db.select().from(patients).where(eq(patients.id, appt.patientId));
     if (patient?.email) {
+      const isScheduled = appt.status === 'scheduled' || appt.status === 'arrived';
+      const subject = isScheduled ? 'Appointment Cancelled - HealthCore Clinic' : 'Appointment Request Declined - HealthCore Clinic';
+      const message = isScheduled 
+        ? `Hello ${patient.name},\n\nWe are writing to inform you that your scheduled appointment at HealthCore Clinic has been cancelled. We apologize for any inconvenience this may cause.\n\nYou are welcome to book a new appointment at your earliest convenience.\n\nBest regards,\nHealthCore Team`
+        : `Hello ${patient.name},\n\nWe regret to inform you that your appointment request at HealthCore Clinic could not be accommodated at this time. This might be due to a scheduling conflict or unavailability.\n\nYou are welcome to try booking another time slot that works for you.\n\nBest regards,\nHealthCore Team`;
+
       try {
-        await sendEmail(
-          patient.email,
-          'Appointment Cancelled - HealthCore Clinic',
-          `Hello ${patient.name},\n\nWe regret to inform you that your appointment request at HealthCore Clinic has been cancelled. This might be due to a scheduling conflict or unavailability.\n\nYou are welcome to try booking another time slot that works for you.\n\nBest regards,\nHealthCore Team`
-        );
+        await sendEmail(patient.email, subject, message);
       } catch (err) {
         console.error('[RejectAppointment] Email notification failed:', err);
       }
@@ -152,6 +154,7 @@ export async function rejectAppointment(id: number) {
   }
 
   await db.delete(appointments).where(eq(appointments.id, id));
+  processQueueNotifications().catch(err => console.error('[RejectSync] Notification error:', err));
   revalidatePath('/doctor/dashboard');
   revalidatePath('/admin');
 }
@@ -203,7 +206,7 @@ export async function qrCheckIn(qrData: string) {
       })
       .where(eq(appointments.id, appointmentId));
 
-    await processQueueNotifications();
+    processQueueNotifications().catch(err => console.error('[QRSync] Notification error:', err));
 
     revalidatePath('/doctor/dashboard');
     revalidatePath('/queue');

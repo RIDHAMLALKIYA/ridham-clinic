@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { Activity, CheckCircle2, Loader2 } from 'lucide-react';
-import { completeConsultation } from '@/lib/actions';
+import { useState, useTransition, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Activity, CheckCircle2, Loader2, X } from 'lucide-react';
+import { completeConsultation, rejectAppointment } from '@/lib/actions';
 import { withRetry } from '@/lib/utils/retry';
 
 interface ActivePatient {
@@ -15,6 +16,11 @@ interface ActivePatient {
 export default function ConsultationManager({ initialPatient }: { initialPatient: ActivePatient | null }) {
     const [patient, setPatient] = useState(initialPatient);
     const [isPending, startTransition] = useTransition();
+    const router = useRouter();
+
+    useEffect(() => {
+        setPatient(initialPatient);
+    }, [initialPatient]);
 
     const handleComplete = async () => {
         if (!patient) return;
@@ -26,9 +32,30 @@ export default function ConsultationManager({ initialPatient }: { initialPatient
         startTransition(async () => {
             try {
                 await withRetry(() => completeConsultation(original.id), { retries: 3 });
+                router.refresh();
             } catch (error) {
                 setPatient(original);
                 alert('Failed to complete consultation. Please check your internet connection.');
+            }
+        });
+    };
+
+    const handleCancelConsultation = async () => {
+        if (!patient) return;
+        if (!window.confirm('Abort this consultation? This will remove the patient from the active session and cancel their appointment record.')) {
+            return;
+        }
+
+        const original = patient;
+        setPatient(null);
+
+        startTransition(async () => {
+            try {
+                await withRetry(() => rejectAppointment(original.id), { retries: 3 });
+                router.refresh();
+            } catch (error) {
+                setPatient(original);
+                alert('Failed to abort consultation.');
             }
         });
     };
@@ -77,18 +104,31 @@ export default function ConsultationManager({ initialPatient }: { initialPatient
                     </div>
                 </div>
 
-                <div className="relative">
-                    <div className="absolute inset-0 bg-emerald-500/20 blur-[60px] rounded-full group-hover:bg-emerald-500/40 transition-all"></div>
-                    <div className="w-32 h-32 md:w-48 md:h-48 bg-emerald-600 rounded-[2.5rem] md:rounded-[4rem] flex flex-col items-center justify-center text-white shadow-2xl relative z-10 border border-white/20 group-hover:rotate-6 transition-transform group-hover:scale-110">
-                        {isPending ? (
-                            <Loader2 className="w-12 h-12 md:w-16 md:h-16 animate-spin" />
-                        ) : (
-                            <CheckCircle2 className="w-12 h-12 md:w-16 md:h-16" />
-                        )}
-                        <span className="text-[10px] md:text-[11px] font-black uppercase tracking-widest mt-4">
-                            {isPending ? 'Syncing...' : 'Complete'}
-                        </span>
+                <div className="flex flex-col items-center gap-6">
+                    <div className="relative">
+                        <div className="absolute inset-0 bg-emerald-500/20 blur-[60px] rounded-full group-hover:bg-emerald-500/40 transition-all"></div>
+                        <div 
+                            onClick={(e) => { e.stopPropagation(); handleComplete(); }}
+                            className="w-32 h-32 md:w-48 md:h-48 bg-emerald-600 rounded-[2.5rem] md:rounded-[4rem] flex flex-col items-center justify-center text-white shadow-2xl relative z-10 border border-white/20 group-hover:rotate-6 transition-transform group-hover:scale-110 cursor-pointer"
+                        >
+                            {isPending ? (
+                                <Loader2 className="w-12 h-12 md:w-16 md:h-16 animate-spin" />
+                            ) : (
+                                <CheckCircle2 className="w-12 h-12 md:w-16 md:h-16" />
+                            )}
+                            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-widest mt-4">
+                                {isPending ? 'Syncing...' : 'Complete'}
+                            </span>
+                        </div>
                     </div>
+
+                    <button
+                        onClick={(e) => { e.stopPropagation(); handleCancelConsultation(); }}
+                        className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:underline opacity-60 hover:opacity-100 transition-all flex items-center gap-2"
+                    >
+                        <X size={12} />
+                        Abort Session
+                    </button>
                 </div>
             </div>
         </button>

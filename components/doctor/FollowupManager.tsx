@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { UserCheck, X, Calendar, RotateCcw, Clock, Send } from 'lucide-react';
 import { dismissFollowUp, scheduleReappointment } from '@/lib/actions';
 import { withRetry } from '@/lib/utils/retry';
+import { formatTime12h } from '@/lib/utils';
 
 interface FollowUpAppt {
     id: number;
@@ -16,6 +17,10 @@ interface FollowUpAppt {
 export default function FollowupManager({ initialList }: { initialList: FollowUpAppt[] }) {
     const [list, setList] = useState(initialList);
     const [isPending, startTransition] = useTransition();
+
+    useEffect(() => {
+        setList(initialList);
+    }, [initialList]);
 
     const handleDismiss = async (id: number) => {
         const original = [...list];
@@ -34,16 +39,24 @@ export default function FollowupManager({ initialList }: { initialList: FollowUp
 
     const handleReappointment = async (formData: FormData, patientId: number, name: string) => {
         const date = formData.get('date') as string;
-        const time = formData.get('time') as string;
+        const h = formData.get('hour') as string;
+        const m = formData.get('min') as string;
+        const p = formData.get('period') as string;
         
-        if (!date || !time) {
+        if (!date || !h || !m || !p) {
             alert('Please select both date and time');
             return;
         }
 
+        // Convert back to 24h for backend
+        let hour = parseInt(h);
+        if (p === 'PM' && hour !== 12) hour += 12;
+        if (p === 'AM' && hour === 12) hour = 0;
+        const time = `${String(hour).padStart(2, '0')}:${m}`;
+
         try {
             await scheduleReappointment(patientId, date, time);
-            alert(`Follow-up scheduled for ${name} on ${date} at ${time}`);
+            alert(`Follow-up scheduled for ${name} on ${date} at ${formatTime12h(time)}`);
         } catch (error) {
             alert('Failed to schedule follow-up');
         }
@@ -117,13 +130,19 @@ export default function FollowupManager({ initialList }: { initialList: FollowUp
                                        />
                                     </div>
                                     <div className="space-y-3">
-                                       <label className="text-[9px] font-black text-slate-400 dark:text-white/30 uppercase tracking-[0.2em] ml-2">Session Time</label>
-                                       <input
-                                          required
-                                          type="time"
-                                          name="time"
-                                          className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                                       />
+                                       <label className="text-[9px] font-black text-slate-400 dark:text-white/30 uppercase tracking-[0.2em] ml-2">Session Time (12h)</label>
+                                       <div className="flex gap-2">
+                                          <select name="hour" required className="flex-1 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-xs font-bold text-slate-900 dark:text-white outline-none focus:border-emerald-500">
+                                             {[12,1,2,3,4,5,6,7,8,9,10,11].map(h => <option key={h} value={h}>{h}</option>)}
+                                          </select>
+                                          <select name="min" required className="flex-1 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-xs font-bold text-slate-900 dark:text-white outline-none focus:border-emerald-500">
+                                             {Array.from({length: 12}, (_, i) => String(i * 5).padStart(2, '0')).map(m => <option key={m} value={m}>{m}</option>)}
+                                          </select>
+                                          <select name="period" required className="flex-1 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-xs font-black text-slate-900 dark:text-white outline-none focus:border-emerald-500">
+                                             <option value="AM">AM</option>
+                                             <option value="PM">PM</option>
+                                          </select>
+                                       </div>
                                     </div>
                                 </div>
                                 <button

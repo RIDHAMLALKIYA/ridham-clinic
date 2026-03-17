@@ -141,8 +141,8 @@ export async function callPatient(appointmentId: number) {
     .where(eq(appointments.status, 'called'));
   await db.update(appointments).set({ status: 'called' }).where(eq(appointments.id, appointmentId));
   
-  // Trigger Queue Position Notifications
-  await processQueueNotifications();
+  // Trigger Queue Position Notifications (Backgrounded to avoid UI delay)
+  processQueueNotifications().catch(err => console.error('[QueueSync] Notification error:', err));
 
   revalidatePath('/doctor/dashboard');
   revalidatePath('/queue');
@@ -183,7 +183,7 @@ export async function setDoctorStatus(status: 'consulting' | 'resting') {
   }
   
   if (status === 'consulting') {
-    await processQueueNotifications();
+    processQueueNotifications().catch(err => console.error('[StatusSync] Notification error:', err));
   }
 
   revalidatePath('/doctor/dashboard');

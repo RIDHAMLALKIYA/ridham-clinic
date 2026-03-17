@@ -12,16 +12,29 @@ interface CompletedPatient {
   email: string | null;
 }
 
-export default function DailyReport({ initialPatients }: { initialPatients: CompletedPatient[] }) {
+export default function DailyReport({ 
+  initialPatients, 
+  totalCount 
+}: { 
+  initialPatients: CompletedPatient[], 
+  totalCount: number 
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString('en-CA'));
+  const getTodayIST = () => new Intl.DateTimeFormat('en-CA', { 
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(new Date());
+
+  const [selectedDate, setSelectedDate] = useState(getTodayIST());
   const [patientList, setPatientList] = useState<CompletedPatient[]>(initialPatients);
   const [isLoading, setIsLoading] = useState(false);
 
   // Re-sync with initialPatients if it changes from parent
   useEffect(() => {
-    if (selectedDate === new Date().toLocaleDateString('en-CA')) {
+    if (selectedDate === getTodayIST()) {
       setPatientList(initialPatients);
     }
   }, [initialPatients, selectedDate]);
@@ -58,7 +71,7 @@ export default function DailyReport({ initialPatients }: { initialPatients: Comp
     const headers = ['Name', 'Phone', 'Email'];
     const rows = patientList.map(p => [p.patientName, p.phone, p.email || 'N/A']);
     // Adding BOM (\ufeff) and CRLF (\r\n) so Excel opens it automatically in the correct format
-    const csvContent = "\ufeff" + [headers, ...rows].map(e => e.join(",")).join("\r\n");
+    const csvContent = "sep=,\ufeff" + [headers, ...rows].map(e => e.join(",")).join("\r\n");
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -82,7 +95,7 @@ export default function DailyReport({ initialPatients }: { initialPatients: Comp
           </span>
           <div className="flex items-center gap-3">
              <span className="text-2xl md:text-3xl font-black text-white leading-none whitespace-nowrap">
-                {initialPatients.length} Attended
+                {totalCount} Attended
              </span>
           </div>
         </div>

@@ -38,7 +38,13 @@ export default async function DoctorDashboard() {
   }
 
   // Main Queries
-  const today = new Date().toLocaleDateString('en-CA');
+  // Main Queries - Force IST (+05:30) for midnight reset consistency
+  const today = new Intl.DateTimeFormat('en-CA', { 
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(new Date());
   // Parallelized Queries for performance (Parallel loading)
   const [
     docStatusSetting,
@@ -125,7 +131,7 @@ export default async function DoctorDashboard() {
 
   return (
     <div className="space-y-12 pb-32 font-outfit max-w-7xl mx-auto px-6 lg:px-0 relative min-h-screen">
-      <AutoRefresh interval={30000} />
+      <AutoRefresh interval={3000} />
       <DashboardNotifier
         requestCount={reqAppointments.length}
         queueCount={queueAppointments.length}
@@ -201,7 +207,7 @@ export default async function DoctorDashboard() {
           </div>
           
           <div className="w-full md:w-auto flex justify-center md:justify-end">
-             <DailyReport initialPatients={attendedList} />
+             <DailyReport initialPatients={attendedList} totalCount={attendedCount} />
           </div>
         </div>
       </AnimatedWrapper>

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Users, BellRing, Activity, Search, ShieldAlert, Zap, Filter, CheckCircle2, X, Loader2 } from 'lucide-react';
-import { callPatient } from '@/lib/actions';
+import { callPatient, rejectAppointment } from '@/lib/actions';
 import { withRetry } from '@/lib/utils/retry';
 import { prefetchPatientData } from '@/lib/actions/prefetch';
 
@@ -20,13 +21,12 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
   const [filterMode, setFilterMode] = useState<'all' | 'emergency'>('all');
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  // Sync with props when they change (e.g. on revalidatePath)
-  useState(() => {
-    if (initialAppointments !== appointments) {
-        setAppointments(initialAppointments);
-    }
-  });
+  // FIX: Use useEffect for reliable sync
+  useEffect(() => {
+    setAppointments(initialAppointments);
+  }, [initialAppointments]);
 
   const handleCallPatient = async (apptId: number) => {
     const originalAppointments = [...appointments];
@@ -37,11 +37,29 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
     startTransition(async () => {
         try {
             await withRetry(() => callPatient(apptId), { retries: 3 });
+            router.refresh();
         } catch (error) {
             console.error('Failed to call patient after retries:', error);
             // ROLLBACK if failed
             setAppointments(originalAppointments);
             alert('Consultation call failed due to network issues. Please try again.');
+        }
+    });
+  };
+
+  const handleCancelLobby = async (id: number) => {
+    if (!window.confirm('Remove this patient from the lobby? This will cancel their arrived status and delete the appointment.')) {
+        return;
+    }
+    const original = [...appointments];
+    setAppointments(prev => prev.filter(a => a.id !== id));
+
+    startTransition(async () => {
+        try {
+            await withRetry(() => rejectAppointment(id), { retries: 3 });
+        } catch (error) {
+            setAppointments(original);
+            alert('Failed to remove patient.');
         }
     });
   };
@@ -218,6 +236,16 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
                   >
                     <BellRing size={24} />
                   </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCancelLobby(appt.id);
+                    }}
+                    title="Remove/Cancel Patient"
+                    className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover/live:opacity-100"
+                  >
+                    <X size={14} />
+                  </button>
                   <span className={`text-[9px] font-black uppercase tracking-widest ${appt.emergency ? 'text-red-500 animate-pulse' : 'text-emerald-500'}`}>
                     {appt.emergency ? 'Emergency' : 'Priority'}
                   </span>

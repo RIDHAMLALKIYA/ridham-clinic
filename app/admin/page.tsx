@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import AnimatedWrapper from '@/components/layout/AnimatedWrapper';
 import SecurityProtocolLoader from '@/components/shared/SecurityProtocolLoader';
+import { formatTime12h } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -161,7 +162,7 @@ export default async function AdminPanel() {
                           Registry Timestamp
                         </span>
                         <span className="text-sm font-black text-slate-600 dark:text-slate-400 opacity-80 uppercase tracking-widest">
-                          {appt.date || 'Pending'} | {appt.time || '--:--'}
+                          {appt.date || 'Pending'} | {formatTime12h(appt.time || '')}
                         </span>
                       </div>
                       <form
