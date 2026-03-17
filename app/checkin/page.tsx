@@ -40,10 +40,10 @@ export default async function CheckInPage({
               area.
             </p>
             <a
-              href="/queue"
-              className="mt-12 inline-block px-10 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black rounded-2xl hover:opacity-90 transition-all uppercase tracking-widest text-xs shadow-xl active:scale-95"
+              href="/checkin"
+              className="mt-12 inline-block px-10 py-5 bg-emerald-600 text-white font-black rounded-[2rem] hover:bg-emerald-500 transition-all uppercase tracking-[0.3em] text-[10px] shadow-2xl shadow-emerald-500/30 active:scale-95 border border-emerald-400/20"
             >
-              Entry Live Queue
+              Check-In Another Patient
             </a>
           </div>
         </AnimatedWrapper>
