@@ -17,8 +17,6 @@ export const appointments = pgTable('appointments', {
   scheduledAt: timestamp('scheduled_at'),
   status: varchar('status', { length: 20 }).notNull().default('requested'), // requested, scheduled, arrived, called, completed
   emergencyFlag: boolean('emergency_flag').default(false),
-  notifiedTop10: boolean('notified_top10').default(false),
-  notifiedTop20: boolean('notified_top20').default(false),
   attendedAt: timestamp('attended_at'),
   createdAt: timestamp('created_at').defaultNow(),
 });
