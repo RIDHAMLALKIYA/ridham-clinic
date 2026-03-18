@@ -110,8 +110,9 @@ export default function Navbar() {
                 </div>
                 <div className="flex flex-col text-left">
                   <span className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter group-hover:text-emerald-500 transition-colors duration-500 leading-none">
-                    HealthCor <span className="text-emerald-500">Clinic.</span>
+                    HealthCor <span className="text-emerald-500">Clinic v1.5.</span>
                   </span>
+                  {/* Deployment Verification Beacon */}
                   <span className="text-[8px] md:text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] md:tracking-[0.5em] mt-1 ml-0.5">{t('nav.branding')}</span>
                 </div>
               </Link>
