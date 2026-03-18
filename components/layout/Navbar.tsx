@@ -48,23 +48,14 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isMenuOpen]);
 
-  // Handle mouse movement for the top area
+  // Simplified: Nav is always visible on desktop for elite accessibility
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (window.innerWidth < 1024) return; // Desktop only
-      if (isScrolled || isMenuOpen) return;
-
-      // If mouse is in the top 80px, show nav
-      if (e.clientY < 80) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
     };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [isScrolled, isMenuOpen]);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const closeMenu = () => setIsMenuOpen(false);
 
@@ -110,7 +101,7 @@ export default function Navbar() {
                 </div>
                 <div className="flex flex-col text-left">
                   <span className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter group-hover:text-emerald-500 transition-colors duration-500 leading-none">
-                    HealthCor <span className="text-emerald-500">Clinic v1.5.</span>
+                    HealthCor <span className="text-emerald-500">Clinic v1.6</span>
                   </span>
                   {/* Deployment Verification Beacon */}
                   <span className="text-[8px] md:text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] md:tracking-[0.5em] mt-1 ml-0.5">{t('nav.branding')}</span>
@@ -123,27 +114,41 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="relative flex items-center gap-3 px-6 py-3 text-slate-900 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 font-black text-[12px] uppercase tracking-widest transition-all duration-700 group/navitem rounded-2xl hover:bg-emerald-500/5"
+                    className="relative flex flex-col items-center justify-center px-8 py-3 text-slate-900 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-all duration-700 group/navitem rounded-2xl hover:bg-emerald-500/5 min-w-[120px]"
                   >
-                    <span className="opacity-0 group-hover/navitem:opacity-100 group-hover/navitem:translate-x-0 -translate-x-3 transition-all duration-700 transform scale-90 text-emerald-500">
-                      {link.icon}
-                    </span>
-                    <span className="group-hover/navitem:translate-x-1 transition-transform duration-700">
-                      {link.name}
-                    </span>
+                    <div className="flex items-center gap-2">
+                       <span className="opacity-0 group-hover/navitem:opacity-100 group-hover/navitem:translate-x-0 -translate-x-3 transition-all duration-700 transform scale-90 text-emerald-500">
+                        {link.icon}
+                      </span>
+                      <span className="font-black text-[13px] uppercase tracking-widest group-hover/navitem:translate-x-1 transition-transform duration-700">
+                        {link.name}
+                      </span>
+                    </div>
+                    {language === 'gu' && (
+                       <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 opacity-50 group-hover/navitem:opacity-100 transition-opacity">
+                        {link.href === '/' ? 'RESERVATIONS' : link.href === '/checkin' ? 'CHECK-IN' : 'LOBBY'}
+                      </span>
+                    )}
                     <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-[3px] bg-emerald-500 rounded-full group-hover/navitem:w-1/3 transition-all duration-700 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
                   </Link>
                 ))}
 
                 <div className="h-8 w-px bg-slate-200 dark:bg-white/10 mx-6 opacity-50"></div>
 
-                {/* Language Switcher */}
+                {/* Language Switcher - Elite Dual-Toggle */}
                 <button
-                  onClick={toggleLanguage}
-                  className="flex items-center gap-2 px-6 py-3 bg-white/5 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-emerald-500 transition-all active:scale-95 group/lang"
+                  onClick={() => setLanguage(language === 'en' ? 'gu' : 'en')}
+                  className="flex items-center gap-3 px-6 py-3 bg-emerald-500/10 dark:bg-emerald-500/20 border-2 border-emerald-500/30 dark:border-emerald-500/40 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-emerald-500 hover:bg-emerald-500 hover:text-white transition-all active:scale-95 group/lang shadow-inner min-w-[140px]"
                 >
-                  <Globe className="w-4 h-4 text-emerald-500 group-hover/lang:rotate-45 transition-transform" />
-                  <span className="text-slate-900 dark:text-white">{language === 'en' ? 'EN' : 'ગુજ'}</span>
+                  <Globe className="w-5 h-5 text-emerald-500 group-hover/lang:rotate-45 group-hover/lang:text-white transition-all" />
+                  <div className="flex flex-col items-start leading-[1.1] font-outfit">
+                    <span className={language === 'en' ? "text-emerald-600 dark:text-emerald-400 group-hover/lang:text-white" : "text-slate-500 group-hover/lang:text-white/60"}>
+                      {language === 'en' ? '● ENGLISH' : 'ENGLISH'}
+                    </span>
+                    <span className={language === 'gu' ? "text-emerald-600 dark:text-emerald-400 group-hover/lang:text-white text-[11px]" : "text-slate-500 group-hover/lang:text-white/60 text-[11px]"}>
+                      {language === 'gu' ? '● ગુજરાતી' : 'ગુજરાતી'}
+                    </span>
+                  </div>
                 </button>
 
                 <Link
