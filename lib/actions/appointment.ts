@@ -72,23 +72,26 @@ export async function createBooking(formData: FormData) {
     patientId = insertResult[0].id;
   }
 
-  await db.insert(appointments).values({
+  const [newAppt] = await db.insert(appointments).values({
     patientId,
     status: 'requested',
     emergencyFlag,
-  });
+  }).returning({ id: appointments.id });
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ridham-clinic-v1.vercel.app';
+  const qrPassUrl = `${appUrl}/checkin/pass/${newAppt.id}`;
 
   if (email) {
     try {
       if (preferredLanguage === 'gu') {
         const guSubject = 'મોકલવામાં આવેલી એપોઈન્ટમેન્ટ વિનંતી - હેલ્થકોર ક્લિનિક';
-        const guMessage = `નમસ્તે ${name},\n\nહેલ્થકોર ક્લિનિક પસંદ કરવા બદલ આભાર. અમને તમારી એપોઈન્ટમેન્ટ વિનંતી મળી છે.\n\nઅમારી ટીમ અત્યારે તેની સમીક્ષા કરી રહી છે. એકવાર તમારો સ્લોટ સેટ થઈ ગયા પછી તમને તમારા કન્ફર્મ કરેલ સમય અને ચેક-ઇન QR કોડ સાથે બીજો ઈમેઈલ પ્રાપ્ત થશે.\n\n${atClinic ? 'નોંધ: તમે તમારી જાતને શારીરિક રીતે ક્લિનિકમાં હાજર તરીકે ચિહ્નિત કર્યા છે.' : 'અમે તમને ટૂંક સમયમાં જાણ કરીશું.'}\n\nશ્રેષ્ઠ શુભેચ્છાઓ,\nહેલ્થકોર ટીમ`;
+        const guMessage = `નમસ્તે ${name},\n\nહેલ્થકોર ક્લિનિક પસંદ કરવા બદલ આભાર. અમને તમારી એપોઈન્ટમેન્ટ વિનંતી મળી છે.\n\nતમારો ડિજિટલ પાસ અને QR કોડ અહીં જુઓ: ${qrPassUrl}\n\nઅમારી ટીમ અત્યારે તેની સમીક્ષા કરી રહી છે. એકવાર તમારો સ્લોટ સેટ થઈ ગયા પછી તમને બીજો કન્ફર્મેશન ઈમેઈલ પ્રાપ્ત થશે.\n\n${atClinic ? 'નોંધ: તમે તમારી જાતને શારીરિક રીતે ક્લિનિકમાં હાજર તરીકે ચિહ્નિત કર્યા છે.' : 'અમે તમને ટૂંક સમયમાં જાણ કરીશું.'}\n\nશ્રેષ્ઠ શુભેચ્છાઓ,\nહેલ્થકોર ટીમ`;
         await sendEmail(email, guSubject, guMessage);
       } else {
         await sendEmail(
           email,
           'Appointment Request Received - HealthCore Clinic',
-          `Hello ${name},\n\nThank you for choosing HealthCore Clinic. We have received your appointment request.\n\nOur team is reviewing it now. You will receive another email with your confirmed time and check-in QR code once your slot is assigned.\n\n${atClinic ? 'Note: You have marked yourself as physically present at the clinic.' : 'We will notify you shortly.'}\n\nBest regards,\nHealthCore Team`
+          `Hello ${name},\n\nThank you for choosing HealthCore Clinic. We have received your appointment request.\n\nView your Digital Pass & QR Code here: ${qrPassUrl}\n\nOur team is reviewing it now. You will receive another email with your confirmed time once your slot is assigned.\n\n${atClinic ? 'Note: You have marked yourself as physically present at the clinic.' : 'We will notify you shortly.'}\n\nBest regards,\nHealthCore Team`
         );
       }
     } catch (err) {
@@ -96,14 +99,15 @@ export async function createBooking(formData: FormData) {
     }
   }
 
-  // Send WhatsApp Notification
+  // Send WhatsApp Notification with QR Link
   try {
     await sendWhatsApp({
       to: phoneNumber,
-      templateName: 'appointment_request_received',
+      templateName: 'appointment_registration_qr',
       language: preferredLanguage as 'en' | 'gu',
       variables: {
         patient_name: name,
+        qr_link: qrPassUrl,
         clinic_name: 'HealthCore Clinic'
       }
     });
