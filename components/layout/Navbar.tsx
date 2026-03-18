@@ -174,10 +174,11 @@ export default function Navbar() {
 
               <div className="lg:hidden flex items-center gap-2 md:gap-3">
                 <button
-                  onClick={toggleLanguage}
-                  className="p-3 md:p-4 bg-slate-100 dark:bg-white/5 rounded-xl md:rounded-2xl text-slate-600 dark:text-white hover:bg-emerald-500 hover:text-white transition-all active:scale-90"
+                  onClick={() => setLanguage(language === 'en' ? 'gu' : 'en')}
+                  className="flex items-center gap-2 p-3 md:p-4 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-xl md:rounded-2xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all active:scale-90 border border-emerald-500/20"
                 >
                   <Globe className="w-4 h-4 md:w-5 md:h-5" />
+                  <span className="text-[10px] font-black">{language === 'en' ? 'GUJ' : 'ENG'}</span>
                 </button>
                 <ThemeToggle />
                 <button
