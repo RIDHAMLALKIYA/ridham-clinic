@@ -20,7 +20,7 @@ import { useLanguage } from '@/components/providers/LanguageProvider';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
-export const dynamic = 'force-dynamic';
+// export const dynamic = 'force-dynamic';
 
 function CheckInContent() {
   const { t, language } = useLanguage();

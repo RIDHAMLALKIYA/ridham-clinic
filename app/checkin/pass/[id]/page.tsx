@@ -8,10 +8,13 @@ import { QrCode, ShieldCheck, MapPin, Calendar, Clock, User } from 'lucide-react
 import AnimatedWrapper from '@/components/layout/AnimatedWrapper';
 import { formatTime12h } from '@/lib/utils';
 
+import Link from 'next/link';
+
 export const dynamic = 'force-dynamic';
 
-export default async function DigitalPassPage({ params }: { params: { id: string } }) {
-    const appointmentId = parseInt(params.id);
+export default async function DigitalPassPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const appointmentId = parseInt(id);
     if (isNaN(appointmentId)) notFound();
 
     const [appt] = await db
@@ -124,5 +127,3 @@ export default async function DigitalPassPage({ params }: { params: { id: string
         </div>
     );
 }
-
-import Link from 'next/link';
