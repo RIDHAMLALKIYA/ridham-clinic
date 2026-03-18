@@ -6,8 +6,8 @@ export async function middleware(request: NextRequest) {
   const session = await getSession();
   const { pathname } = request.nextUrl;
 
-  // Protect doctor and admin routes
-  if (pathname.startsWith('/doctor') || pathname.startsWith('/admin')) {
+  // Protect doctor, admin, and lobby (queue) routes
+  if (pathname.startsWith('/doctor') || pathname.startsWith('/admin') || pathname.startsWith('/queue')) {
     if (!session) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
@@ -29,5 +29,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/doctor/:path*', '/admin/:path*', '/login'],
+  matcher: ['/doctor/:path*', '/admin/:path*', '/queue/:path*', '/login'],
 };

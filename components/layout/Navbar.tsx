@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
   Stethoscope,
@@ -13,10 +14,13 @@ import {
   ShieldCheck,
   Activity,
   Heart,
+  Globe,
 } from 'lucide-react';
 import { ThemeToggle } from '../shared/ThemeToggle';
+import { useLanguage } from '../providers/LanguageProvider';
 
 export default function Navbar() {
+  const { language, setLanguage, t } = useLanguage();
   const [isVisible, setIsVisible] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -65,10 +69,14 @@ export default function Navbar() {
   const closeMenu = () => setIsMenuOpen(false);
 
   const desktopLinks = [
-    { name: 'Reservations', href: '/', icon: <Calendar className="w-4 h-4" /> },
-    { name: 'Check-in', href: '/checkin', icon: <UserCheck className="w-4 h-4" /> },
-    { name: 'Lobby', href: '/queue', icon: <Users className="w-4 h-4" /> },
+    { name: t('nav.reservations'), href: '/', icon: <Calendar className="w-4 h-4" /> },
+    { name: t('nav.checkin'), href: '/checkin', icon: <UserCheck className="w-4 h-4" /> },
+    { name: t('nav.lobby'), href: '/queue', icon: <Users className="w-4 h-4" /> },
   ];
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'gu' : 'en');
+  };
 
   return (
     <>
@@ -104,7 +112,7 @@ export default function Navbar() {
                   <span className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter group-hover:text-emerald-500 transition-colors duration-500 leading-none">
                     HealthCor <span className="text-emerald-500">Clinic.</span>
                   </span>
-                  <span className="text-[8px] md:text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] md:tracking-[0.5em] mt-1 ml-0.5">Elite Medical Node</span>
+                  <span className="text-[8px] md:text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] md:tracking-[0.5em] mt-1 ml-0.5">{t('nav.branding')}</span>
                 </div>
               </Link>
 
@@ -128,12 +136,21 @@ export default function Navbar() {
 
                 <div className="h-8 w-px bg-slate-200 dark:bg-white/10 mx-6 opacity-50"></div>
 
+                {/* Language Switcher */}
+                <button
+                  onClick={toggleLanguage}
+                  className="flex items-center gap-2 px-6 py-3 bg-white/5 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-emerald-500 transition-all active:scale-95 group/lang"
+                >
+                  <Globe className="w-4 h-4 text-emerald-500 group-hover/lang:rotate-45 transition-transform" />
+                  <span className="text-slate-900 dark:text-white">{language === 'en' ? 'EN' : 'ગુજ'}</span>
+                </button>
+
                 <Link
                   href="/doctor/dashboard"
-                  className="relative overflow-hidden flex items-center gap-3 bg-slate-900 dark:bg-emerald-600 text-white px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl group/btn active:scale-95 border border-white/10 hover:shadow-emerald-500/20"
+                  className="relative overflow-hidden flex items-center gap-3 bg-slate-900 dark:bg-emerald-600 text-white px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl group/btn active:scale-95 border border-white/10 hover:shadow-emerald-500/20 ml-3"
                 >
                   <Activity className="w-4 h-4 text-emerald-300 group-hover/btn:animate-[pulse_1s_infinite]" />
-                  <span>Clinical Console</span>
+                  <span>{t('nav.console')}</span>
                 </Link>
 
                 <Link
@@ -141,7 +158,7 @@ export default function Navbar() {
                   className="flex items-center gap-3 text-slate-900 dark:text-white bg-white/5 dark:bg-black/20 hover:bg-slate-50 dark:hover:bg-white/5 px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border border-slate-200 dark:border-white/10 hover:border-emerald-500/50 shadow-sm active:scale-95 group/admin ml-3"
                 >
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  <span>Admissions</span>
+                  <span>{t('nav.admissions')}</span>
                 </Link>
 
                 <div className="ml-4">
@@ -150,6 +167,12 @@ export default function Navbar() {
               </div>
 
               <div className="lg:hidden flex items-center gap-2 md:gap-3">
+                <button
+                  onClick={toggleLanguage}
+                  className="p-3 md:p-4 bg-slate-100 dark:bg-white/5 rounded-xl md:rounded-2xl text-slate-600 dark:text-white hover:bg-emerald-500 hover:text-white transition-all active:scale-90"
+                >
+                  <Globe className="w-4 h-4 md:w-5 md:h-5" />
+                </button>
                 <ThemeToggle />
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -169,27 +192,27 @@ export default function Navbar() {
             <div className="p-4 sm:p-8 space-y-3 sm:space-y-5 bg-slate-50/80 dark:bg-black/40 backdrop-blur-3xl max-h-[80vh] overflow-y-auto custom-scrollbar">
               {[
                 {
-                  name: 'Reservations',
+                  name: t('nav.reservations'),
                   href: '/',
                   icon: <Calendar className="w-5 h-5 text-emerald-500" />,
                 },
                 {
-                  name: 'Check-in',
+                  name: t('nav.checkin'),
                   href: '/checkin',
                   icon: <UserCheck className="w-5 h-5 text-teal-500" />,
                 },
                 {
-                  name: 'Lobby',
+                  name: t('nav.lobby'),
                   href: '/queue',
                   icon: <Users className="w-5 h-5 text-emerald-500" />,
                 },
                 {
-                  name: 'Console',
+                  name: t('nav.console'),
                   href: '/doctor/dashboard',
                   icon: <Activity className="w-5 h-5 text-red-500" />,
                 },
                 {
-                  name: 'Admissions',
+                  name: t('nav.admissions'),
                   href: '/admin',
                   icon: <ShieldCheck className="w-5 h-5 text-slate-600 dark:text-slate-300" />,
                 },

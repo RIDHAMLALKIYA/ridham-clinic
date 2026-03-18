@@ -36,6 +36,7 @@ export async function createBooking(formData: FormData) {
   }
 
   const emergencyFlag = formData.get('emergencyFlag') === 'on';
+  const preferredLanguage = (formData.get('language') as string) || 'en';
   const redirectTo = formData.get('redirectTo') as string;
 
   let patientId: number;
@@ -52,7 +53,8 @@ export async function createBooking(formData: FormData) {
       .set({ 
         name, 
         email,
-        reasonForVisit 
+        reasonForVisit,
+        preferredLanguage
       })
       .where(eq(patients.id, patientId));
   } else {
@@ -63,6 +65,7 @@ export async function createBooking(formData: FormData) {
         phoneNumber,
         email,
         reasonForVisit,
+        preferredLanguage,
       })
       .returning({ id: patients.id });
     patientId = insertResult[0].id;
@@ -74,14 +77,19 @@ export async function createBooking(formData: FormData) {
     emergencyFlag,
   });
 
-  // NEW: Immediate Receipt Email
   if (email) {
     try {
-      await sendEmail(
-        email,
-        'Appointment Request Received - HealthCore Clinic',
-        `Hello ${name},\n\nThank you for choosing HealthCore Clinic. We have received your appointment request.\n\nOur team is reviewing it now. You will receive another email with your confirmed time and check-in QR code once your slot is assigned.\n\n${atClinic ? 'Note: You have marked yourself as physically present at the clinic.' : 'We will notify you shortly.'}\n\nBest regards,\nHealthCore Team`
-      );
+      if (preferredLanguage === 'gu') {
+        const guSubject = 'મોકલવામાં આવેલી એપોઈન્ટમેન્ટ વિનંતી - હેલ્થકોર ક્લિનિક';
+        const guMessage = `નમસ્તે ${name},\n\nહેલ્થકોર ક્લિનિક પસંદ કરવા બદલ આભાર. અમને તમારી એપોઈન્ટમેન્ટ વિનંતી મળી છે.\n\nઅમારી ટીમ અત્યારે તેની સમીક્ષા કરી રહી છે. એકવાર તમારો સ્લોટ સેટ થઈ ગયા પછી તમને તમારા કન્ફર્મ કરેલ સમય અને ચેક-ઇન QR કોડ સાથે બીજો ઈમેઈલ પ્રાપ્ત થશે.\n\n${atClinic ? 'નોંધ: તમે તમારી જાતને શારીરિક રીતે ક્લિનિકમાં હાજર તરીકે ચિહ્નિત કર્યા છે.' : 'અમે તમને ટૂંક સમયમાં જાણ કરીશું.'}\n\nશ્રેષ્ઠ શુભેચ્છાઓ,\nહેલ્થકોર ટીમ`;
+        await sendEmail(email, guSubject, guMessage);
+      } else {
+        await sendEmail(
+          email,
+          'Appointment Request Received - HealthCore Clinic',
+          `Hello ${name},\n\nThank you for choosing HealthCore Clinic. We have received your appointment request.\n\nOur team is reviewing it now. You will receive another email with your confirmed time and check-in QR code once your slot is assigned.\n\n${atClinic ? 'Note: You have marked yourself as physically present at the clinic.' : 'We will notify you shortly.'}\n\nBest regards,\nHealthCore Team`
+        );
+      }
     } catch (err) {
       console.error('[Booking] Email notification failed:', err);
     }
@@ -100,7 +108,8 @@ export async function createBooking(formData: FormData) {
 export async function patientCheckIn(
   name: string,
   phoneNumber: string,
-  emergencyFlag: boolean = false
+  emergencyFlag: boolean = false,
+  preferredLanguage?: string
 ) {
   const [patient] = await db
     .select()
@@ -109,6 +118,11 @@ export async function patientCheckIn(
       and(eq(patients.phoneNumber, phoneNumber), sql`LOWER(${patients.name}) = LOWER(${name})`)
     );
   if (!patient) return { success: false, error: 'Patient not found' };
+
+  // Update preference if provided
+  if (preferredLanguage) {
+    await db.update(patients).set({ preferredLanguage }).where(eq(patients.id, patient.id));
+  }
 
   const [appt] = await db
     .select()
@@ -140,10 +154,19 @@ export async function rejectAppointment(id: number) {
     const [patient] = await db.select().from(patients).where(eq(patients.id, appt.patientId));
     if (patient?.email) {
       const isScheduled = appt.status === 'scheduled' || appt.status === 'arrived';
-      const subject = isScheduled ? 'Appointment Cancelled - HealthCore Clinic' : 'Appointment Request Declined - HealthCore Clinic';
-      const message = isScheduled 
-        ? `Hello ${patient.name},\n\nWe are writing to inform you that your scheduled appointment at HealthCore Clinic has been cancelled. We apologize for any inconvenience this may cause.\n\nYou are welcome to book a new appointment at your earliest convenience.\n\nBest regards,\nHealthCore Team`
-        : `Hello ${patient.name},\n\nWe regret to inform you that your appointment request at HealthCore Clinic could not be accommodated at this time. This might be due to a scheduling conflict or unavailability.\n\nYou are welcome to try booking another time slot that works for you.\n\nBest regards,\nHealthCore Team`;
+      const isGu = patient.preferredLanguage === 'gu';
+
+      const subject = isGu 
+        ? (isScheduled ? 'એપોઈન્ટમેન્ટ રદ કરવામાં આવી - હેલ્થકોર ક્લિનિક' : 'એપોઈન્ટમેન્ટ વિનંતી નકારવામાં આવી - હેલ્થકોર ક્લિનિક')
+        : (isScheduled ? 'Appointment Cancelled - HealthCore Clinic' : 'Appointment Request Declined - HealthCore Clinic');
+
+      const message = isGu
+        ? (isScheduled 
+            ? `નમસ્તે ${patient.name},\n\nઅમે તમને જણાવવા માંગીએ છીએ કે તમારી હેલ્થકોર ક્લિનિકમાં નક્કી કરેલી એપોઈન્ટમેન્ટ રદ કરવામાં આવી છે. અગવડતા બદલ અમે દિલગીર છીએ.\n\nતમે ગમે ત્યારે નવી એપોઈન્ટમેન્ટ બુક કરી શકો છો.\n\nશ્રેષ્ઠ શુભેચ્છાઓ,\nહેલ્થકોર ટીમ`
+            : `નમસ્તે ${patient.name},\n\nઅમે દિલગીરી સાથે જણાવીએ છીએ કે તમારી હેલ્થકોર ક્લિનિકમાં એપોઈન્ટમેન્ટની વિનંતી અત્યારે સ્વીકારી શકાય તેમ નથી. આ શિડ્યુલિંગ સંઘર્ષ અથવા અનુપલબ્ધતાને કારણે હોઈ શકે છે.\n\nતમે તમારા માટે અનુકૂળ બીજો સમય સ્લોટ બુક કરવાનો પ્રયાસ કરી શકો છો.\n\nશ્રેષ્ઠ શુભેચ્છાઓ,\nહેલ્થકોર ટીમ`)
+        : (isScheduled 
+            ? `Hello ${patient.name},\n\nWe are writing to inform you that your scheduled appointment at HealthCore Clinic has been cancelled. We apologize for any inconvenience this may cause.\n\nYou are welcome to book a new appointment at your earliest convenience.\n\nBest regards,\nHealthCore Team`
+            : `Hello ${patient.name},\n\nWe regret to inform you that your appointment request at HealthCore Clinic could not be accommodated at this time. This might be due to a scheduling conflict or unavailability.\n\nYou are welcome to try booking another time slot that works for you.\n\nBest regards,\nHealthCore Team`);
 
       try {
         await sendEmail(patient.email, subject, message);

@@ -30,18 +30,24 @@ export async function POST(req: NextRequest) {
     }
 
     // Parse the body
-    const { patientName, email, messageType } = JSON.parse(bodyText);
+    const { patientName, email, messageType, preferredLanguage } = JSON.parse(bodyText);
 
     if (!email) return NextResponse.json({ success: false, error: 'Email missing' });
 
     let subject = 'Appointment Reminder - HealthCore Clinic';
     let message = '';
+    const isGu = preferredLanguage === 'gu';
 
     if (messageType === '30min') {
-      message = `Hello ${patientName},\n\nThis is a reminder that your appointment at HealthCore Clinic is in 30 minutes. We look forward to seeing you!\n\nBest regards,\nHealthCore Team`;
+      subject = isGu ? 'એપોઈન્ટમેન્ટ રીમાઇન્ડર - હેલ્થકોર ક્લિનિક' : 'Appointment Reminder - HealthCore Clinic';
+      message = isGu 
+        ? `નમસ્તે ${patientName},\n\nહેલ્થકોર ક્લિનિકમાં તમારી એપોઈન્ટમેન્ટ હવે ૩૦ મિનિટમાં છે. અમે તમને જોવા આતુર છીએ!\n\nશ્રેષ્ઠ શુભેચ્છાઓ,\nહેલ્થકોર ટીમ`
+        : `Hello ${patientName},\n\nThis is a reminder that your appointment at HealthCore Clinic is in 30 minutes. We look forward to seeing you!\n\nBest regards,\nHealthCore Team`;
     } else {
-      subject = 'Your Appointment is Starting Now - HealthCore Clinic';
-      message = `Hello ${patientName},\n\nYour appointment at HealthCore Clinic is starting now. Please proceed to the waiting area if you haven't already.\n\nBest regards,\nHealthCore Team`;
+      subject = isGu ? 'તમારી એપોઈન્ટમેન્ટ અત્યારે જ શરૂ થઈ રહી છે - હેલ્થકોર ક્લિનિક' : 'Your Appointment is Starting Now - HealthCore Clinic';
+      message = isGu
+        ? `નમસ્તે ${patientName},\n\nહેલ્થકોર ક્લિનિકમાં તમારી એપોઈન્ટમેન્ટ અત્યારે જ શરૂ થઈ રહી છે. જો તમે હજી ન આવ્યા હોવ તો કૃપા કરીને વેટિંગ એરિયામાં પધારો.\n\nશ્રેષ્ઠ શુભેચ્છાઓ,\nહેલ્થકોર ટીમ`
+        : `Hello ${patientName},\n\nYour appointment at HealthCore Clinic is starting now. Please proceed to the waiting area if you haven't already.\n\nBest regards,\nHealthCore Team`;
     }
 
     await sendEmail(email, subject, message);

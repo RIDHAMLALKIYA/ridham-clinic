@@ -56,24 +56,27 @@ export async function updateAppointment(
     if (patient?.email) {
       console.log(`[DoctorAction] Processing confirmation for ${patient.name} (${patient.email})`);
       const qrCodeDataUrl = await generateAppointmentQRCode(id, patient.email);
+      const isGu = patient.preferredLanguage === 'gu';
       
-      const emailText = `Hello ${patient.name},\n\nYour appointment at HealthCore Clinic is confirmed for ${appointmentDate} at ${formatTime12h(appointmentTime || '')}.\n\nPlease find your unique check-in QR code attached below. You can use this to check-in when you arrive at the clinic.\n\nWe look forward to seeing you!\n\nBest regards,\nHealthCore Team`;
+      const emailText = isGu
+        ? `નમસ્તે ${patient.name},\n\nહેલ્થકોર ક્લિનિકમાં તમારી એપોઈન્ટમેન્ટ ${appointmentDate} ના રોજ ${formatTime12h(appointmentTime || '')} વાગ્યે કન્ફર્મ થઈ ગઈ છે.\n\nકૃપા કરીને નીચે આપેલ તમારો QR કોડ તપાસો. જ્યારે તમે ક્લિનિક પર આવો ત્યારે તમે આનો ઉપયોગ ચેક-ઇન કરવા માટે કરી શકો છો.\n\nઅમે તમને જોવા આતુર છીએ!\n\nશ્રેષ્ઠ શુભેચ્છાઓ,\nહેલ્થકોર ટીમ`
+        : `Hello ${patient.name},\n\nYour appointment at HealthCore Clinic is confirmed for ${appointmentDate} at ${formatTime12h(appointmentTime || '')}.\n\nPlease find your unique check-in QR code attached below. You can use this to check-in when you arrive at the clinic.\n\nWe look forward to seeing you!\n\nBest regards,\nHealthCore Team`;
       
       const emailHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-          <h2 style="color: #2563eb;">Appointment Confirmed!</h2>
-          <p>Hello <strong>${patient.name}</strong>,</p>
-          <p>Your appointment at <strong>HealthCore Clinic</strong> is confirmed for:</p>
+          <h2 style="color: #2563eb;">${isGu ? 'એપોઈન્ટમેન્ટ કન્ફર્મ થઈ ગઈ છે!' : 'Appointment Confirmed!'}</h2>
+          <p>${isGu ? `નમસ્તે <strong>${patient.name}</strong>,` : `Hello <strong>${patient.name}</strong>,`}</p>
+          <p>${isGu ? `<strong>હેલ્થકોર ક્લિનિક</strong> માં તમારી એપોઈન્ટમેન્ટ કન્ફર્મ છે:` : `Your appointment at <strong>HealthCore Clinic</strong> is confirmed for:`}</p>
           <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <p style="margin: 5px 0;"><strong>Date:</strong> ${appointmentDate}</p>
-            <p style="margin: 5px 0;"><strong>Time:</strong> ${formatTime12h(appointmentTime || '')}</p>
+            <p style="margin: 5px 0;"><strong>${isGu ? 'તારીખ:' : 'Date:'}</strong> ${appointmentDate}</p>
+            <p style="margin: 5px 0;"><strong>${isGu ? 'સમય:' : 'Time:'}</strong> ${formatTime12h(appointmentTime || '')}</p>
           </div>
-          <p>To speed up your arrival, please present the QR code below for check-in:</p>
+          <p>${isGu ? 'તમારા આગમનને ઝડપી બનાવવા માટે, કૃપા કરીને નીચેનો QR કોડ બતાવો:' : 'To speed up your arrival, please present the QR code below for check-in:'}</p>
           <div style="text-align: center; margin: 30px 0;">
             <img src="cid:qrcode" alt="Check-in QR Code" style="width: 200px; height: 200px; border: 2px solid #2563eb; padding: 10px; border-radius: 10px;" />
           </div>
-          <p>We look forward to seeing you!</p>
-          <p style="margin-top: 30px; font-size: 14px; color: #666;">Best regards,<br>HealthCore Team</p>
+          <p>${isGu ? 'અમે તમને જોવા આતુર છીએ!' : 'We look forward to seeing you!'}</p>
+          <p style="margin-top: 30px; font-size: 14px; color: #666;">${isGu ? 'શ્રેષ્ઠ શુભેચ્છાઓ,' : 'Best regards,'}<br>HealthCore Team</p>
         </div>
       `;
 
@@ -81,7 +84,7 @@ export async function updateAppointment(
       try {
         await sendEmail(
           patient.email,
-          'Appointment Confirmed - HealthCore Clinic',
+          isGu ? 'એપોઈન્ટમેન્ટ કન્ફર્મ - હેલ્થકોર ક્લિનિક' : 'Appointment Confirmed - HealthCore Clinic',
           emailText,
           emailHtml,
           [{
@@ -94,29 +97,23 @@ export async function updateAppointment(
         const now = new Date();
         const thirtyMinBefore = new Date(scheduledAt.getTime() - 30 * 60 * 1000);
 
-        console.log(`[DoctorAction] Time Diagnosis:`);
-        console.log(` - Current Time: ${now.toISOString()}`);
-        console.log(` - Appt Time: ${scheduledAt.toISOString()}`);
-        console.log(` - 30m Before: ${thirtyMinBefore.toISOString()}`);
-
         if (thirtyMinBefore > now) {
           console.log(`[DoctorAction] 🗓️ Scheduling 30-min reminder (Delayed)`);
-          await scheduleReminder(id, patient.name, patient.email, thirtyMinBefore, '30min');
+          await scheduleReminder(id, patient.name, patient.email, thirtyMinBefore, '30min', patient.preferredLanguage || 'en');
         } else if (scheduledAt > now) {
           console.log(`[DoctorAction] ⚡ Appointment is very soon. Sending IMMEDIATE reminder email.`);
-          await sendEmail(
-            patient.email,
-            'Upcoming Appointment Reminder - HealthCore Clinic',
-            `Hello ${patient.name},\n\nYour appointment at HealthCore Clinic is approaching shortly (at ${formatTime12h(appointmentTime || '')}). We look forward to seeing you!\n\nBest regards,\nHealthCore Team`
-          );
-        } else {
-          console.warn(`[DoctorAction] ⚠️ Appointment is in the past. Skipping 30min automation.`);
+          const reminderSubject = isGu ? 'આગામી એપોઈન્ટમેન્ટ રીમાઇન્ડર - હેલ્થકોર ક્લિનિક' : 'Upcoming Appointment Reminder - HealthCore Clinic';
+          const reminderText = isGu 
+            ? `નમસ્તે ${patient.name},\n\nહેલ્થકોર ક્લિનિકમાં તમારી એપોઈન્ટમેન્ટ ટૂંક સમયમાં શરૂ થવા જઈ રહી છે (${formatTime12h(appointmentTime || '')} વાગ્યે). અમે તમને જોવા આતુર છીએ!\n\nશ્રેષ્ઠ શુભેચ્છાઓ,\nહેલ્થકોર ટીમ`
+            : `Hello ${patient.name},\n\nYour appointment at HealthCore Clinic is approaching shortly (at ${formatTime12h(appointmentTime || '')}). We look forward to seeing you!\n\nBest regards,\nHealthCore Team`;
+          
+          await sendEmail(patient.email, reminderSubject, reminderText);
         }
 
         // Always schedule the "Starting Now" reminder if it's still in the future
         if (scheduledAt > now) {
           console.log(`[DoctorAction] 🗓️ Scheduling 'Starting Now' reminder`);
-          await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact');
+          await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact', patient.preferredLanguage || 'en');
         }
       } catch (err) {
         console.error('[DoctorAction] Email/Automation notification failed:', err);
@@ -235,31 +232,34 @@ export async function scheduleReappointment(patientId: number, date: string, tim
   if (patient?.email) {
     console.log(`[DoctorAction] Processing reappointment for ${patient.name}`);
     const qrCodeDataUrl = await generateAppointmentQRCode(id, patient.email);
+    const isGu = patient.preferredLanguage === 'gu';
     
-    const emailText = `Hello ${patient.name},\n\nYour follow-up appointment at HealthCore Clinic is confirmed for ${date} at ${formatTime12h(time)}.\n\nPlease find your unique check-in QR code attached below.\n\nWe look forward to seeing you!\n\nBest regards,\nHealthCore Team`;
+    const emailText = isGu
+      ? `નમસ્તે ${patient.name},\n\nહેલ્થકોર ક્લિનિકમાં તમારી ફોલો-અપ એપોઈન્ટમેન્ટ ${date} ના રોજ ${formatTime12h(time)} વાગ્યે કન્ફર્મ થઈ ગઈ છે.\n\nકૃપા કરીને નીચે આપેલ તમારો QR કોડ તપાસો.\n\nઅમે તમને જોવા આતુર છીએ!\n\nશ્રેષ્ઠ શુભેચ્છાઓ,\nહેલ્થકોર ટીમ`
+      : `Hello ${patient.name},\n\nYour follow-up appointment at HealthCore Clinic is confirmed for ${date} at ${formatTime12h(time)}.\n\nPlease find your unique check-in QR code attached below.\n\nWe look forward to seeing you!\n\nBest regards,\nHealthCore Team`;
     
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-        <h2 style="color: #2563eb;">Follow-up Confirmed!</h2>
-        <p>Hello <strong>${patient.name}</strong>,</p>
-        <p>Your follow-up appointment at <strong>HealthCore Clinic</strong> is confirmed for:</p>
+        <h2 style="color: #2563eb;">${isGu ? 'ફોલો-અપ કન્ફર્મ થઈ ગયું છે!' : 'Follow-up Confirmed!'}</h2>
+        <p>${isGu ? `નમસ્તે <strong>${patient.name}</strong>,` : `Hello <strong>${patient.name}</strong>,`}</p>
+        <p>${isGu ? `<strong>હેલ્થકોર ક્લિનિક</strong> માં તમારી ફોલો-અપ એપોઈન્ટમેન્ટ કન્ફર્મ છે:` : `Your follow-up appointment at <strong>HealthCore Clinic</strong> is confirmed for:`}</p>
         <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>Date:</strong> ${date}</p>
-          <p style="margin: 5px 0;"><strong>Time:</strong> ${formatTime12h(time)}</p>
+          <p style="margin: 5px 0;"><strong>${isGu ? 'તારીખ:' : 'Date:'}</strong> ${date}</p>
+          <p style="margin: 5px 0;"><strong>${isGu ? 'સમય:' : 'Time:'}</strong> ${formatTime12h(time)}</p>
         </div>
-        <p>To speed up your arrival, please present the QR code below for check-in:</p>
+        <p>${isGu ? 'તમારા આગમનને ઝડપી બનાવવા માટે, કૃપા કરીને નીચેનો QR કોડ બતાવો:' : 'To speed up your arrival, please present the QR code below for check-in:'}</p>
         <div style="text-align: center; margin: 30px 0;">
           <img src="cid:qrcode" alt="Check-in QR Code" style="width: 200px; height: 200px; border: 2px solid #2563eb; padding: 10px; border-radius: 10px;" />
         </div>
-        <p>We look forward to seeing you!</p>
-        <p style="margin-top: 30px; font-size: 14px; color: #666;">Best regards,<br>HealthCore Team</p>
+        <p>${isGu ? 'અમે તમને જોવા આતુર છીએ!' : 'We look forward to seeing you!'}</p>
+        <p style="margin-top: 30px; font-size: 14px; color: #666;">${isGu ? 'શ્રેષ્ઠ શુભેચ્છાઓ,' : 'Best regards,'}<br>HealthCore Team</p>
       </div>
     `;
 
     try {
       await sendEmail(
         patient.email,
-        'Follow-up Appointment Confirmed - HealthCore Clinic',
+        isGu ? 'ફોલો-અપ એપોઈન્ટમેન્ટ કન્ફર્મ - હેલ્થકોર ક્લિનિક' : 'Follow-up Appointment Confirmed - HealthCore Clinic',
         emailText,
         emailHtml,
         [{
@@ -272,26 +272,22 @@ export async function scheduleReappointment(patientId: number, date: string, tim
       const now = new Date();
       const thirtyMinBefore = new Date(scheduledAt.getTime() - 30 * 60 * 1000);
 
-      console.log(`[Reappointment] Time Diagnosis:`);
-      console.log(` - Current Time: ${now.toISOString()}`);
-      console.log(` - Appt Time: ${scheduledAt.toISOString()}`);
-      console.log(` - 30m Before: ${thirtyMinBefore.toISOString()}`);
-
       if (thirtyMinBefore > now) {
         console.log(`[Reappointment] 🗓️ Scheduling 30-min reminder (Delayed)`);
-        await scheduleReminder(id, patient.name, patient.email, thirtyMinBefore, '30min');
+        await scheduleReminder(id, patient.name, patient.email, thirtyMinBefore, '30min', patient.preferredLanguage || 'en');
       } else if (scheduledAt > now) {
         console.log(`[Reappointment] ⚡ Appointment is very soon. Sending IMMEDIATE reminder email.`);
-        await sendEmail(
-          patient.email,
-          'Upcoming Appointment Reminder - HealthCore Clinic',
-          `Hello ${patient.name},\n\nYour follow-up appointment at HealthCore Clinic is approaching shortly (at ${formatTime12h(time)}). We look forward to seeing you!\n\nBest regards,\nHealthCore Team`
-        );
+        const reminderSubject = isGu ? 'આગામી એપોઈન્ટમેન્ટ રીમાઇન્ડર - હેલ્થકોર ક્લિનિક' : 'Upcoming Appointment Reminder - HealthCore Clinic';
+        const reminderText = isGu
+          ? `નમસ્તે ${patient.name},\n\nહેલ્થકોર ક્લિનિકમાં તમારી ફોલો-અપ એપોઈન્ટમેન્ટ ટૂંક સમયમાં શરૂ થવા જઈ રહી છે (${formatTime12h(time)} વાગ્યે). અમે તમને જોવા આતુર છીએ!\n\nશ્રેષ્ઠ શુભેચ્છાઓ,\nહેલ્થકોર ટીમ`
+          : `Hello ${patient.name},\n\nYour follow-up appointment at HealthCore Clinic is approaching shortly (at ${formatTime12h(time)}). We look forward to seeing you!\n\nBest regards,\nHealthCore Team`;
+        
+        await sendEmail(patient.email, reminderSubject, reminderText);
       }
 
       if (scheduledAt > now) {
         console.log(`[Reappointment] 🗓️ Scheduling 'Starting Now' reminder`);
-        await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact');
+        await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact', patient.preferredLanguage || 'en');
       }
     } catch (err) {
       console.error('[Reappointment] Automation/Email failed:', err);
@@ -310,11 +306,13 @@ export async function markAsNotArrived(appointmentId: number) {
   const [patient] = await db.select().from(patients).where(eq(patients.id, appt.patientId));
 
   if (patient?.email) {
-    await sendEmail(
-      patient.email,
-      'Missed Appointment - HealthCore Clinic',
-      `Hello ${patient.name},\n\nWe noticed that you were unable to attend your scheduled appointment today. \n\nYou can easily reschedule your visit by clicking the link below:\n👉 [Reschedule My Appointment](${process.env.NEXT_PUBLIC_APP_URL || 'https://ridham-clinic-v1.vercel.app'})\n\nAlternatively, you can reply directly to this email or contact us.\n\nBest regards,\nHealthCore Team`
-    );
+    const isGu = patient.preferredLanguage === 'gu';
+    const subject = isGu ? 'ચૂકી ગયેલી એપોઈન્ટમેન્ટ - હેલ્થકોર ક્લિનિક' : 'Missed Appointment - HealthCore Clinic';
+    const message = isGu
+      ? `નમસ્તે ${patient.name},\n\nઅમે નોંધ્યું છે કે તમે આજે તમારી નક્કી કરેલી એપોઈન્ટમેન્ટમાં હાજર રહી શક્યા નથી.\n\nતમે નીચેની લિંક પર ક્લિક કરીને સરળતાથી તમારી મુલાકાત ફરીથી શિડ્યુલ કરી શકો છો:\n👉 [ફરીથી શિડ્યુલ કરો](${process.env.NEXT_PUBLIC_APP_URL || 'https://ridham-clinic-v1.vercel.app'})\n\nવૈકલ્પિક રીતે, તમે સીધો આ ઈમેઈલનો જવાબ આપી શકો છો અથવા અમારો સંપર્ક કરી શકો છો.\n\nશ્રેષ્ઠ શુભેચ્છાઓ,\nહેલ્થકોર ટીમ`
+      : `Hello ${patient.name},\n\nWe noticed that you were unable to attend your scheduled appointment today. \n\nYou can easily reschedule your visit by clicking the link below:\n👉 [Reschedule My Appointment](${process.env.NEXT_PUBLIC_APP_URL || 'https://ridham-clinic-v1.vercel.app'})\n\nAlternatively, you can reply directly to this email or contact us.\n\nBest regards,\nHealthCore Team`;
+
+    await sendEmail(patient.email, subject, message);
   }
 
   await db.update(appointments).set({ status: 'missed' }).where(eq(appointments.id, appointmentId));

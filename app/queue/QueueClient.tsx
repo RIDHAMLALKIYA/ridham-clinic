@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Clock, Stethoscope, Activity, Zap } from 'lucide-react';
 import ScrollingName from './ScrollingName';
 import QueueAudioAlert from './QueueAudioAlert';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
 interface Appointment {
   id: number;
@@ -21,6 +22,7 @@ export default function QueueClient({
   nowServing: Appointment | null;
   isResting: boolean;
 }) {
+  const { t } = useLanguage();
   const showWait = isResting || !nowServing;
 
   return (
@@ -54,11 +56,11 @@ export default function QueueClient({
                     className={`w-2 h-2 md:w-3 md:h-3 rounded-full animate-pulse shadow-[0_0_15px_rgba(16,185,129,1)] ${showWait ? 'bg-amber-500' : 'bg-emerald-500'}`}
                   ></div>
                   <span className="text-[10px] md:text-xs lg:text-sm font-black text-emerald-400 uppercase tracking-[0.4em] md:tracking-[0.6em]">
-                    {showWait ? 'Wait' : 'Now Consulting'}
+                    {showWait ? t('queue.wait') : t('queue.now_serving')}
                   </span>
                 </div>
                 <p className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-[0.3em] md:tracking-[0.4em]">
-                  HealthCor Node Active
+                  {t('nav.branding')}
                 </p>
               </div>
             </div>
@@ -77,7 +79,7 @@ export default function QueueClient({
                   >
                     <div className="w-full px-4 overflow-hidden">
                       <ScrollingName
-                        name={isResting && !nowServing ? "DOCTOR ON BREAK" : "PLEASE WAIT"}
+                        name={isResting && !nowServing ? t('queue.doctor_break') : t('queue.please_wait')}
                         className="text-6xl sm:text-8xl md:text-[14rem] lg:text-[22rem] xl:text-[28rem] font-black text-white/5 tracking-tighter leading-none italic uppercase"
                       />
                     </div>
@@ -131,10 +133,10 @@ export default function QueueClient({
                 </div>
                 <div>
                   <h2 className="text-3xl lg:text-4xl font-black tracking-tighter uppercase mb-1 text-white">
-                    Queue
+                    {t('nav.lobby')}
                   </h2>
                   <p className="text-emerald-400 font-black text-[10px] uppercase tracking-[0.4em]">
-                    {arrivedAppointments.length} Active
+                    {arrivedAppointments.length} {t('queue.active_count')}
                   </p>
                 </div>
               </div>
@@ -160,7 +162,7 @@ export default function QueueClient({
                     >
                       <Activity size={80} strokeWidth={0.5} className="text-white md:size-120" />
                       <p className="text-xs font-black uppercase tracking-[0.4em] text-center px-8 text-white">
-                        PLEASE WAIT
+                        {t('queue.please_wait')}
                       </p>
                     </motion.div>
                   ) : (
@@ -203,7 +205,7 @@ export default function QueueClient({
                              <div className={`h-1 w-8 md:h-1.5 md:w-12 rounded-full ${idx === 0 ? 'bg-white/60' : 'bg-emerald-500/30'}`}></div>
                              {idx > 0 && (
                                <span className="text-[9px] md:text-[10px] font-black uppercase text-slate-400 tracking-widest bg-white/5 px-2 md:px-3 py-0.5 rounded border border-white/5">
-                                 ~{idx * 15} MIN WAIT
+                                 ~{idx * 15} {t('queue.min_wait')}
                                </span>
                              )}
                            </div>
@@ -211,7 +213,7 @@ export default function QueueClient({
                         {appt.emergency && (
                           <div className="flex items-center gap-2 bg-red-600 px-4 py-2 rounded-xl shadow-lg animate-pulse">
                             <Zap size={14} className="text-white fill-current" />
-                            <span className="text-[10px] font-black text-white uppercase tracking-widest">Urgent</span>
+                            <span className="text-[10px] font-black text-white uppercase tracking-widest">{t('dash.urgent')}</span>
                           </div>
                         )}
                       </motion.div>
@@ -221,10 +223,19 @@ export default function QueueClient({
               </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-white/10 text-center relative z-20 opacity-40">
+            <div className="mt-8 pt-6 border-t border-white/10 text-center relative z-20 overflow-hidden">
               <p className="text-[11px] font-black text-slate-300 uppercase tracking-[0.4em] animate-pulse">
-                Kindly be seated until your name is called
+                {t('queue.footer')}
               </p>
+              
+              <div className="mt-8 flex flex-col items-center gap-3">
+                <span className="text-3xl font-black text-emerald-500/80 tracking-widest italic animate-bounce-slow">
+                  {t('queue.namaste')}
+                </span>
+                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">
+                  {t('queue.welcome')} • {t('queue.care_sub')}
+                </p>
+              </div>
             </div>
           </div>
         </motion.div>

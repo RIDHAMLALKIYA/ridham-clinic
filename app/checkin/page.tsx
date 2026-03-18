@@ -1,3 +1,5 @@
+'use client';
+
 import { patientCheckIn } from '@/lib/actions';
 import {
   Clock,
@@ -14,15 +16,39 @@ import {
 } from 'lucide-react';
 import CheckInButton from '@/components/ui/CheckInButton';
 import AnimatedWrapper from '@/components/layout/AnimatedWrapper';
+import { useLanguage } from '@/components/providers/LanguageProvider';
+import { useSearchParams } from 'next/navigation';
 
-export default async function CheckInPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const resolvedParams = await searchParams;
-  const error = resolvedParams.error as string | undefined;
-  const success = resolvedParams.success as string | undefined;
+export default function CheckInPage() {
+  const { t, language } = useLanguage();
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
+  const success = searchParams.get('success');
+
+  const handleAction = async (formData: FormData) => {
+    const name = formData.get('name') as string;
+    const countryCode = (formData.get('countryCode') as string) || '+91';
+    const rawPhone = formData.get('phoneNumber') as string;
+    const phone = `${countryCode}${rawPhone}`;
+    const emergencyFlag = formData.get('emergencyFlag') === 'on';
+    const langPreference = formData.get('language') as string;
+    
+    // We can't use server action directly in 'use client' if it uses 'use server' inside? 
+    // Actually nextjs allows it.
+    const res = await patientCheckIn(name, phone, emergencyFlag, langPreference);
+
+    if (!res.success) {
+      if (res.error === 'Patient not found') {
+        window.location.href = `/checkin?error=not_found`;
+      } else if (res.error === 'No scheduled appointment found for today') {
+        window.location.href = `/checkin?error=no_appointment`;
+      } else {
+        window.location.href = `/checkin?error=unknown`;
+      }
+    } else {
+      window.location.href = `/checkin?success=1`;
+    }
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto py-12 md:py-24 px-4 sm:px-6 lg:px-8 relative min-h-[80vh]">
@@ -33,17 +59,16 @@ export default async function CheckInPage({
               <CheckCircle2 className="h-12 w-12 text-emerald-500" />
             </div>
             <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter">
-              Check-In <span className="text-emerald-500">Verified.</span>
+              {t('nav.checkin')} <span className="text-emerald-500">{t('checkin.success_verified')}</span>
             </h2>
             <p className="text-xl text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-md mx-auto">
-              You have been integrated into the live clinical stream. Proceed to the main lobby
-              area.
+              {t('checkin.success_subtitle')}
             </p>
             <a
               href="/checkin"
               className="mt-12 inline-block px-10 py-5 bg-emerald-600 text-white font-black rounded-[2rem] hover:bg-emerald-500 transition-all uppercase tracking-[0.3em] text-[10px] shadow-2xl shadow-emerald-500/30 active:scale-95 border border-emerald-400/20"
             >
-              Check-In Another Patient
+              {t('checkin.another')}
             </a>
           </div>
         </AnimatedWrapper>
@@ -55,20 +80,19 @@ export default async function CheckInPage({
                 <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full mb-8 shadow-sm">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
                   <span className="text-[10px] font-black text-slate-500 dark:text-emerald-400 uppercase tracking-[0.3em]">
-                    Authorized Access Node
+                    {t('checkin.authorized_node')}
                   </span>
                 </div>
                 <h1 className="text-4xl sm:text-7xl lg:text-[6rem] font-black text-slate-900 dark:text-white tracking-tighter leading-[0.9] lg:leading-[0.85] mb-6 md:mb-10">
-                  Queue <br />
+                  {t('nav.lobby')} <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500 drop-shadow-[0_0_30px_rgba(16,185,129,0.2)]">
-                    Portal
+                    {t('checkin.portal')}
                   </span>
                   .
                 </h1>
               </div>
               <p className="text-xl text-slate-500 dark:text-slate-400 font-medium mb-14 leading-relaxed max-w-md tracking-tight">
-                Synchronize your arrival with our smart clinic network. Precision timing for elite
-                care.
+                {t('checkin.sync_subtitle')}
               </p>
 
               <div className="grid grid-cols-1 gap-6 max-w-sm">
@@ -78,10 +102,10 @@ export default async function CheckInPage({
                   </div>
                   <div>
                     <h3 className="font-black text-slate-900 dark:text-white text-lg tracking-tight uppercase">
-                      Instant Sync
+                      {t('checkin.instant_sync')}
                     </h3>
                     <p className="text-slate-500 text-[10px] font-black mt-1 uppercase tracking-[0.2em] opacity-60">
-                      Verified Credentials Only
+                      {t('checkin.verified_creds')}
                     </p>
                   </div>
                 </div>
@@ -97,10 +121,10 @@ export default async function CheckInPage({
                     <CheckCircle2 className="w-6 h-6 text-emerald-500 mt-0.5" />
                     <div className="text-left">
                       <h4 className="text-emerald-500 font-black text-xs uppercase tracking-[0.2em]">
-                        Node Registered
+                        {t('checkin.node_registered')}
                       </h4>
                       <p className="text-[10px] text-emerald-500/70 mt-1.5 font-bold uppercase tracking-widest leading-relaxed">
-                        Identity verified. Awaiting clinic activation beacon.
+                        {t('checkin.identity_verified')}
                       </p>
                     </div>
                   </div>
@@ -111,50 +135,31 @@ export default async function CheckInPage({
                     <ShieldCheck className="w-6 h-6 text-red-500 mt-0.5" />
                     <div className="text-left">
                       <h4 className="text-red-500 font-black text-xs uppercase tracking-[0.2em]">
-                        Sync Error
+                        {t('checkin.sync_error')}
                       </h4>
                       <p className="text-[10px] text-red-500/70 mt-1.5 font-bold uppercase tracking-widest leading-relaxed">
                         {error === 'not_found'
-                          ? 'Identity mismatch. Registration required.'
+                          ? t('checkin.error_not_found')
                           : error === 'no_appointment'
-                            ? 'No active session scheduled for current time node.'
-                            : 'Network timeout. Consult administration panel.'}
+                            ? t('checkin.error_no_appointment')
+                            : t('checkin.error_unknown')}
                       </p>
                     </div>
                   </div>
                 )}
 
                 <form
-                  action={async (formData) => {
-                    'use server';
-                    const name = formData.get('name') as string;
-                    const countryCode = (formData.get('countryCode') as string) || '+91';
-                    const rawPhone = formData.get('phoneNumber') as string;
-                    const phone = `${countryCode}${rawPhone}`;
-                    const emergencyFlag = formData.get('emergencyFlag') === 'on';
-                    const res = await patientCheckIn(name, phone, emergencyFlag);
-
-                    const { redirect } = await import('next/navigation');
-                    if (!res.success) {
-                      if (res.error === 'Patient not found') {
-                        redirect(`/checkin?error=not_found`);
-                      } else if (res.error === 'No scheduled appointment found for today') {
-                        redirect(`/checkin?error=no_appointment`);
-                      } else {
-                        redirect(`/checkin?error=unknown`);
-                      }
-                    }
-                    redirect(`/checkin?success=1`);
-                  }}
+                  action={handleAction}
                   className="px-10 py-16 md:p-20 space-y-12"
                 >
+                  <input type="hidden" name="language" value={language} />
                   <div className="flex flex-col gap-12">
                     <div className="group/input text-left font-outfit">
                       <label
                         htmlFor="name"
                         className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 ml-2"
                       >
-                        Full Name
+                        {t('checkin.full_name')}
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-6 md:pl-8 flex items-center pointer-events-none text-slate-400 group-focus-within/input:text-emerald-500 transition-colors">
@@ -166,7 +171,7 @@ export default async function CheckInPage({
                           id="name"
                           required
                           className="block w-full pl-16 md:pl-20 pr-6 md:pr-10 py-5 md:py-7 text-slate-950 dark:text-white bg-white dark:bg-black/60 border border-slate-200 dark:border-white/10 rounded-[1.8rem] md:rounded-[2.5rem] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-700 text-lg md:text-2xl font-bold placeholder:text-slate-400 dark:placeholder:text-slate-700"
-                          placeholder="Enter your full name"
+                          placeholder={t('checkin.name_placeholder')}
                         />
                       </div>
                     </div>
@@ -176,7 +181,7 @@ export default async function CheckInPage({
                         htmlFor="phoneNumber"
                         className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 ml-2"
                       >
-                        Mobile Number
+                        {t('checkin.mobile_number')}
                       </label>
                       <div className="relative flex flex-col md:flex-row gap-4">
                         <div className="relative w-full md:w-1/3 min-w-[140px]">
@@ -199,7 +204,7 @@ export default async function CheckInPage({
                             pattern="[0-9]{10}"
                             inputMode="numeric"
                             className="block w-full px-8 md:px-10 py-5 md:py-7 text-slate-950 dark:text-white bg-white dark:bg-black/60 border border-slate-200 dark:border-white/10 rounded-[1.8rem] md:rounded-[2.5rem] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-700 text-lg md:text-2xl font-bold placeholder:text-slate-400 dark:placeholder:text-slate-700"
-                            placeholder="Your 10-digit number"
+                            placeholder={t('checkin.phone_placeholder')}
                           />
                         </div>
                       </div>
@@ -211,10 +216,10 @@ export default async function CheckInPage({
                         <div className="text-left">
                           <h4 className="text-xs font-black text-red-600 dark:text-red-500 uppercase tracking-widest flex items-center gap-3">
                             <ShieldAlert className="w-5 h-5 animate-pulse" />
-                            Emergency Priority
+                            {t('checkin.emergency_priority')}
                           </h4>
                           <p className="text-[10px] text-red-500/60 font-bold mt-2 uppercase tracking-widest">
-                            Mark this if you need immediate attention.
+                            {t('checkin.emergency_sub')}
                           </p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer scale-110">
@@ -230,7 +235,7 @@ export default async function CheckInPage({
 
                     <div className="w-full h-px bg-slate-200 dark:bg-white/10 relative">
                       <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-[#0d0d0d] px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                        OR
+                        {t('home.form.reason_sub') ? 'OR' : 'OR'}
                       </span>
                     </div>
 
@@ -239,12 +244,12 @@ export default async function CheckInPage({
                       className="w-full py-6 md:py-8 rounded-[1.8rem] md:rounded-[3rem] border-2 border-slate-900 dark:border-white text-slate-900 dark:text-white flex items-center justify-center gap-4 text-sm md:text-lg font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white dark:hover:bg-white dark:hover:text-slate-900 transition-all active:scale-95 group/qr"
                     >
                       <Zap className="w-5 h-5 group-hover:animate-pulse" />
-                      Scan QR Code
+                      {t('checkin.scan_qr')}
                     </a>
 
                     <div className="w-full h-px bg-slate-200 dark:bg-white/10 relative">
                       <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-[#0d0d0d] px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                        Need to Register?
+                        {t('checkin.need_register')}
                       </span>
                     </div>
 
@@ -252,9 +257,9 @@ export default async function CheckInPage({
                       href="/?redirect=/checkin&atClinic=true"
                       className="text-[11px] font-bold text-slate-400 hover:text-emerald-500 transition-all uppercase tracking-widest group/link"
                     >
-                      First regular visit?{' '}
+                      {t('checkin.first_visit')}{' '}
                       <span className="text-emerald-500 underline decoration-emerald-500/30 group-hover:decoration-emerald-500 underline-offset-8">
-                        Book an Appointment
+                        {t('checkin.book_now')}
                       </span>
                     </a>
                   </div>

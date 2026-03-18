@@ -13,6 +13,7 @@ export async function processQueueNotifications() {
       id: appointments.id,
       patientName: patients.name,
       patientEmail: patients.email,
+      preferredLanguage: patients.preferredLanguage,
     })
     .from(appointments)
     .innerJoin(patients, eq(appointments.patientId, patients.id))
@@ -36,12 +37,18 @@ export async function processQueueNotifications() {
 
       console.log(`[QueueNotifier] 📧 Notifying ${patient.patientName} (Pos: ${position})`);
       
-      const message = `Hello ${patient.patientName},\n\nYou are moving up in the queue! You are now at position ${position} at HealthCore Clinic.\n\nPlease stay close to the clinic area. We will notify you again when you are next in line.\n\nBest regards,\nHealthCore Team`;
+      let subject = `Queue Update: Position ${position} - HealthCore Clinic`;
+      let message = `Hello ${patient.patientName},\n\nYou are moving up in the queue! You are now at position ${position} at HealthCore Clinic.\n\nPlease stay close to the clinic area. We will notify you again when you are next in line.\n\nBest regards,\nHealthCore Team`;
+
+      if (patient.preferredLanguage === 'gu') {
+        subject = `કતાર અપડેટ: સ્થાન ${position} - હેલ્થકોર ક્લિનિક`;
+        message = `નમસ્તે ${patient.patientName},\n\nતમે અત્યારે કતારમાં આગળ વધી રહ્યા છો! તમે હવે હેલ્થકોર ક્લિનિકમાં ${position} નંબર પર છો.\n\nકૃપા કરીને ક્લિનિકના વેટિંગ એરિયામાં રહો. જ્યારે તમારો વારો આવશે ત્યારે અમે તમને ફરીથી જાણ કરીશું.\n\nશ્રેષ્ઠ શુભેચ્છાઓ,\nહેલ્થકોર ટીમ`;
+      }
       
       try {
         await sendEmail(
           patient.patientEmail,
-          `Queue Update: Position ${position} - HealthCore Clinic`,
+          subject,
           message
         );
         // Lock this notification so it never sends again for this appointment

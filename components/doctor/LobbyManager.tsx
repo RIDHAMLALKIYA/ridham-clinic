@@ -2,10 +2,11 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Users, BellRing, Activity, Search, ShieldAlert, Zap, Filter, CheckCircle2, X, Loader2 } from 'lucide-react';
+import { Users, BellRing, Activity, Search, ShieldAlert, Zap, Filter, CheckCircle2, X as CloseIcon, Loader2 } from 'lucide-react';
 import { callPatient, rejectAppointment } from '@/lib/actions';
 import { withRetry } from '@/lib/utils/retry';
 import { prefetchPatientData } from '@/lib/actions/prefetch';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
 interface Appointment {
   id: number;
@@ -16,6 +17,7 @@ interface Appointment {
 }
 
 export default function LobbyManager({ initialAppointments }: { initialAppointments: Appointment[] }) {
+  const { t, language } = useLanguage();
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMode, setFilterMode] = useState<'all' | 'emergency'>('all');
@@ -42,13 +44,13 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
             console.error('Failed to call patient after retries:', error);
             // ROLLBACK if failed
             setAppointments(originalAppointments);
-            alert('Consultation call failed due to network issues. Please try again.');
+            alert(language === 'en' ? 'Consultation call failed due to network issues. Please try again.' : 'નેટવર્ક સમસ્યાને કારણે કોલ નિષ્ફળ ગયો. ફરીથી પ્રયાસ કરો.');
         }
     });
   };
 
   const handleCancelLobby = async (id: number) => {
-    if (!window.confirm('Remove this patient from the lobby? This will cancel their arrived status and delete the appointment.')) {
+    if (!window.confirm(language === 'en' ? 'Remove this patient from the lobby?' : 'શું તમે આ દર્દીને લોબીમાંથી કાઢી નાખવા માંગો છો?')) {
         return;
     }
     const original = [...appointments];
@@ -90,12 +92,12 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
           </div>
           <div>
             <h2 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">
-                The Lobby
+                {t('nav.lobby')}
             </h2>
             <div className="flex items-center gap-3">
                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest opacity-60">
-                  {appointments.length} Patients in Queue
+                  {appointments.length} {t('queue.active_count')}
                </p>
             </div>
           </div>
@@ -107,7 +109,7 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
             className={`p-5 rounded-2xl transition-all shadow-xl active:scale-95 flex items-center gap-3 ${isSearchActive ? 'bg-emerald-600 text-white shadow-emerald-500/20' : 'bg-white dark:bg-white/5 text-slate-400 dark:text-white/20 border border-slate-200 dark:border-white/10 hover:border-emerald-500/50'}`}
           >
             <Search size={24} />
-            {isSearchActive && <span className="text-[10px] font-black uppercase tracking-widest">Active</span>}
+            {isSearchActive && <span className="text-[10px] font-black uppercase tracking-widest">{language === 'en' ? 'Active' : 'સક્રિય'}</span>}
           </button>
           
           <button
@@ -119,7 +121,7 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
             }`}
           >
             <Zap size={18} className={filterMode === 'emergency' ? 'animate-pulse' : ''} />
-            {filterMode === 'emergency' ? 'Urgent Mode ON' : 'Show Urgent Only'}
+            {filterMode === 'emergency' ? (language === 'en' ? 'Urgent Mode ON' : 'ઇમરજન્સી ચાલુ') : (language === 'en' ? 'Show Urgent Only' : 'માત્ર ઇમરજન્સી')}
           </button>
         </div>
       </div>
@@ -132,15 +134,15 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
                 
                 <div className="w-full max-w-2xl space-y-6 relative z-10">
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em] ml-6">Patient Database Search</span>
+                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em] ml-6">{language === 'en' ? 'Patient Database Search' : 'દર્દી ડેટાબેઝ શોધો'}</span>
                         <div className="flex items-center gap-4">
                            {filterMode === 'emergency' && (
                               <div className="flex items-center gap-2 bg-red-600 text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">
-                                 Urgent Only Mode
+                                 {language === 'en' ? 'Urgent Only Mode' : 'માત્ર ઇમરજન્સી મોડ'}
                               </div>
                            )}
                            <button onClick={() => { setIsSearchActive(false); setSearchTerm(''); }} className="p-2 text-slate-400 hover:text-red-500 transition-colors bg-white/5 rounded-full">
-                               <X size={20} />
+                               <CloseIcon size={20} />
                            </button>
                         </div>
                     </div>
@@ -150,7 +152,7 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
                         <input
                             autoFocus
                             type="text"
-                            placeholder="Type Patient Name or Phone Number..."
+                            placeholder={language === 'en' ? "Type Patient Name or Phone Number..." : "દર્દીનું નામ અથવા ફોન નંબર લખો..."}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-20 pr-16 py-7 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-white/10 rounded-full text-2xl font-bold text-slate-950 dark:text-white shadow-2xl focus:outline-none focus:border-emerald-500 transition-all placeholder:text-slate-200 dark:placeholder:text-white/5"
@@ -160,7 +162,7 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
                                 onClick={() => setSearchTerm('')}
                                 className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-600 transition-colors"
                             >
-                                <X size={24} />
+                                <CloseIcon size={24} />
                             </button>
                         )}
                     </div>
@@ -170,7 +172,7 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
                        {searchTerm && filtered.length === 0 && (
                           <div className="py-2">
                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
-                                No matching records found in today's entry
+                                {language === 'en' ? "No matching records found in today's entry" : "આજના રેકોર્ડમાં કોઈ મેચ મળી નથી"}
                              </p>
                           </div>
                        )}
@@ -178,7 +180,7 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
                           onClick={() => setFilterMode(filterMode === 'all' ? 'emergency' : 'all')}
                           className={`text-[9px] font-black uppercase tracking-[0.3em] px-6 py-2 rounded-full border transition-all ${filterMode === 'emergency' ? 'bg-red-600 border-red-500 text-white shadow-lg' : 'text-slate-400 hover:text-emerald-500 border-transparent bg-white/5'}`}
                        >
-                          {filterMode === 'emergency' ? '✓ Urgent Filter Active' : 'Switch to Urgent Only'}
+                          {filterMode === 'emergency' ? (language === 'en' ? '✓ Urgent Filter Active' : '✓ ઇમરજન્સી ફિલ્ટર ચાલુ') : (language === 'en' ? 'Switch to Urgent Only' : 'માત્ર ઇમરજન્સી જુઓ')}
                        </button>
                     </div>
                 </div>
@@ -194,14 +196,14 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
                <Search size={40} className="text-white" />
             </div>
             <div>
-               <h3 className="text-xl font-black text-white uppercase tracking-tighter">Patient Not Available</h3>
+               <h3 className="text-xl font-black text-white uppercase tracking-tighter">{language === 'en' ? 'Patient Not Available' : 'દર્દી ઉપલબ્ધ નથી'}</h3>
                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-500 mt-2">
-                  No matching records found in today's queue
+                  {language === 'en' ? "No matching records found in today's queue" : "આજના વેટિંગ લિસ્ટમાં કોઈ મેચ મળી નથી"}
                </p>
             </div>
             {filterMode === 'emergency' && (
                <button onClick={() => setFilterMode('all')} className="mt-4 text-[10px] font-black uppercase text-emerald-500 underline underline-offset-4">
-                  Show All Patients Instead
+                  {language === 'en' ? 'Show All Patients Instead' : 'બધા દર્દીઓ જુઓ'}
                </button>
             )}
           </div>
@@ -220,13 +222,13 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
                   <div className="w-12 h-12 bg-slate-900 dark:bg-black text-white rounded-2xl flex items-center justify-center font-black text-slate-300 dark:text-white/10 transition-transform group-hover/live:scale-110 shadow-xl border border-white/5">
                     {idx + 1}
                   </div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Rank</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">{language === 'en' ? 'Rank' : 'ક્રમ'}</span>
                 </div>
 
                 {idx === 0 && (
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl flex items-center gap-2 animate-bounce">
                     <Zap size={10} fill="currentColor" />
-                    Consult Next
+                    {language === 'en' ? 'Consult Next' : 'આગળની તપાસ'}
                   </div>
                 )}
 
@@ -244,10 +246,10 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
                     title="Remove/Cancel Patient"
                     className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover/live:opacity-100"
                   >
-                    <X size={14} />
+                    <CloseIcon size={14} />
                   </button>
                   <span className={`text-[9px] font-black uppercase tracking-widest ${appt.emergency ? 'text-red-500 animate-pulse' : 'text-emerald-500'}`}>
-                    {appt.emergency ? 'Emergency' : 'Priority'}
+                    {appt.emergency ? t('dash.urgent') : (language === 'en' ? 'Priority' : 'પ્રાથમિકતા')}
                   </span>
                 </div>
               </div>
@@ -264,13 +266,13 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
                   {appt.emergency && (
                     <div className="flex items-center gap-2 bg-red-600/10 px-4 py-1.5 rounded-full">
                       <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-ping"></div>
-                      <span className="text-[9px] font-black text-red-600 uppercase tracking-widest">Urgent</span>
+                      <span className="text-[9px] font-black text-red-600 uppercase tracking-widest">{t('dash.urgent')}</span>
                     </div>
                   )}
                   {appt.reason?.includes('[PHYSICALLY PRESENT AT CLINIC]') && (
                     <div className="flex items-center gap-2 bg-amber-500/10 px-4 py-1.5 rounded-full">
                       <ShieldAlert size={12} className="text-amber-500" />
-                      <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Present</span>
+                      <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">{language === 'en' ? 'Present' : 'હાજર'}</span>
                     </div>
                   )}
                 </div>

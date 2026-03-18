@@ -1,19 +1,19 @@
+'use client';
+
 import { createBooking } from '@/lib/actions';
 import { Clock, Zap, User, Mail, FileText, CheckCircle2, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import SubmitButton from '@/components/ui/SubmitButton';
 import AnimatedWrapper from '@/components/layout/AnimatedWrapper';
+import { useLanguage } from '@/components/providers/LanguageProvider';
+import { useSearchParams } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
-export default async function BookingPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const resolvedParams = await searchParams;
-  const isSuccess = resolvedParams.success === '1';
-  const atClinic = resolvedParams.atClinic === 'true';
+export default function BookingPage() {
+  const { t, language } = useLanguage();
+  const searchParams = useSearchParams();
+  const isSuccess = searchParams.get('success') === '1';
+  const atClinic = searchParams.get('atClinic') === 'true';
+  const redirectParam = searchParams.get('redirect') || '';
 
   return (
     <div className="w-full max-w-7xl mx-auto py-8 md:py-20 px-4 sm:px-6 lg:px-8 relative min-h-screen">
@@ -25,17 +25,26 @@ export default async function BookingPage({
                 <CheckCircle2 className="h-12 w-12 text-emerald-500" />
               </div>
               <h2 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter">
-                Session <span className="text-emerald-500">Reserved.</span>
+                {t('home.success.title')}
               </h2>
               <p className="text-xl text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-md mx-auto">
-                Your elite medical consultation is pending. Check your encrypted email for
-                confirmation.
+                {t('home.success.subtitle')}
               </p>
+              
+              <div className="mt-10 py-6 border-y border-slate-100 dark:border-white/5 mx-auto max-w-[200px]">
+                <span className="text-3xl font-black text-emerald-500 italic block mb-2">
+                  {t('queue.namaste')}
+                </span>
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+                  See you soon
+                </span>
+              </div>
+
               <Link
                 href="/"
                 className="mt-12 inline-block px-12 py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black rounded-3xl transition-all duration-300 shadow-2xl hover:scale-105 active:scale-95 uppercase tracking-widest text-xs"
               >
-                Return to Dashboard
+                {t('home.success.return')}
               </Link>
             </div>
           </div>
@@ -50,22 +59,21 @@ export default async function BookingPage({
                   <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full shadow-sm w-fit">
                     <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
                     <span className="text-[10px] font-black text-slate-500 dark:text-emerald-400 uppercase tracking-[0.3em]">
-                      HealthCor Premium Admissions
+                      {t('nav.branding')}
                     </span>
                   </div>
                 </div>
                 <h1 className="text-5xl sm:text-7xl lg:text-[7rem] font-black text-slate-900 dark:text-white tracking-tighter leading-[0.9] lg:leading-[0.8] mb-8 lg:mb-12">
-                  Elite <br className="hidden lg:block" />
+                  {t('home.title_prefix')} <br className="hidden lg:block" />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600 drop-shadow-[0_0_30px_rgba(16,185,129,0.2)]">
-                    Admit
+                    {t('home.title_suffix')}
                   </span>
                   .
                 </h1>
               </div>
 
               <p className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 font-medium mb-12 leading-relaxed max-w-lg tracking-tight">
-                Secure your priority access to elite medical professionals. We redefine clinical
-                excellence.
+                {t('home.subtitle')}
               </p>
 
               <div className="space-y-4 md:space-y-6">
@@ -75,10 +83,10 @@ export default async function BookingPage({
                   </div>
                   <div>
                     <h3 className="font-black text-slate-900 dark:text-white text-lg md:text-xl tracking-tight uppercase">
-                      VIP Scheduling
+                      {t('home.vip_scheduling')}
                     </h3>
                     <p className="text-slate-500 dark:text-slate-400 font-bold text-[9px] md:text-[10px] mt-1 uppercase tracking-[0.3em]">
-                      Authority Access Only
+                      {t('home.authority_access')}
                     </p>
                   </div>
                 </div>
@@ -89,10 +97,10 @@ export default async function BookingPage({
                   </div>
                   <div>
                     <h3 className="font-black text-slate-900 dark:text-white text-lg md:text-xl tracking-tight uppercase">
-                      Instant Sync
+                      {t('home.instant_sync')}
                     </h3>
                     <p className="text-slate-500 dark:text-slate-400 font-bold text-[9px] md:text-[10px] mt-1 uppercase tracking-[0.3em]">
-                      Real-time Queue Integration
+                      {t('home.realtime_queue')}
                     </p>
                   </div>
                 </div>
@@ -108,6 +116,7 @@ export default async function BookingPage({
                   action={createBooking}
                   className="px-10 py-12 md:p-20 space-y-12 relative z-20"
                 >
+                  <input type="hidden" name="language" value={language} />
                   <div className="flex flex-col gap-12">
                     {/* Patient Name */}
                     <div className="group/input text-left">
@@ -115,7 +124,7 @@ export default async function BookingPage({
                         htmlFor="name"
                         className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 ml-2"
                       >
-                        Full Name
+                        {t('home.form.name')}
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-6 md:pl-8 flex items-center pointer-events-none text-slate-400 group-focus-within/input:text-emerald-500 transition-colors duration-500">
@@ -127,7 +136,7 @@ export default async function BookingPage({
                           id="name"
                           required
                           className="block w-full pl-16 md:pl-20 pr-6 md:pr-10 py-5 md:py-7 text-slate-950 dark:text-white bg-white dark:bg-black/60 border border-slate-200 dark:border-white/10 rounded-[1.8rem] md:rounded-[2.5rem] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-700 text-lg md:text-2xl font-bold placeholder:text-slate-400 dark:placeholder:text-slate-700"
-                          placeholder="Your complete name"
+                          placeholder={t('home.form.name_placeholder')}
                         />
                       </div>
                     </div>
@@ -138,7 +147,7 @@ export default async function BookingPage({
                         htmlFor="phoneNumber"
                         className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 ml-2"
                       >
-                        Phone Number
+                        {t('home.form.phone')}
                       </label>
                       <div className="relative flex flex-col md:flex-row gap-4">
                         <div className="relative w-full md:w-1/3 min-w-[140px]">
@@ -161,7 +170,7 @@ export default async function BookingPage({
                             pattern="[0-9]{10}"
                             inputMode="numeric"
                             className="block w-full px-8 md:px-10 py-5 md:py-7 text-slate-950 dark:text-white bg-white dark:bg-black/60 border border-slate-200 dark:border-white/10 rounded-[1.8rem] md:rounded-[2.5rem] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-700 text-lg md:text-2xl font-bold placeholder:text-slate-400 dark:placeholder:text-slate-700"
-                            placeholder="10-digit number"
+                            placeholder={t('home.form.phone_placeholder')}
                           />
                         </div>
                       </div>
@@ -173,7 +182,7 @@ export default async function BookingPage({
                         htmlFor="email"
                         className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 ml-2"
                       >
-                        Email Address
+                        {t('home.form.email')}
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-6 md:pl-10 flex items-center pointer-events-none text-slate-400 group-focus-within/input:text-emerald-500 transition-colors">
@@ -185,7 +194,7 @@ export default async function BookingPage({
                           id="email"
                           required
                           className="block w-full pl-16 md:pl-22 pr-6 md:pr-10 py-5 md:py-7 text-slate-950 dark:text-white bg-white dark:bg-black/60 border border-slate-200 dark:border-white/10 rounded-[1.8rem] md:rounded-[2.5rem] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-700 text-lg md:text-2xl font-bold placeholder:text-slate-400 dark:placeholder:text-slate-700"
-                          placeholder="your-email@example.com"
+                          placeholder={t('home.form.email_placeholder')}
                         />
                       </div>
                     </div>
@@ -197,10 +206,10 @@ export default async function BookingPage({
                       htmlFor="reasonForVisit"
                       className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 ml-2"
                     >
-                      Reason for Visit
+                      {t('home.form.reason')}
                     </label>
                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-4 ml-2 opacity-60">
-                      Mention if you are already in the clinic or any urgent symptoms.
+                      {t('home.form.reason_sub')}
                     </p>
                     <div className="relative">
                       <div className="absolute top-6 md:top-8 left-6 md:left-10 text-slate-400 group-focus-within/input:text-emerald-500 transition-colors">
@@ -212,23 +221,15 @@ export default async function BookingPage({
                         rows={3}
                         defaultValue={atClinic ? "I AM IN THE CLINIC. " : ""}
                         className="block w-full pl-16 md:pl-22 pr-6 md:pr-10 py-6 md:py-8 text-slate-950 dark:text-white bg-white/80 dark:bg-black/60 border border-slate-200 dark:border-white/10 rounded-[1.8rem] md:rounded-[3rem] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all duration-700 text-base md:text-xl font-bold resize-none min-h-[120px] md:min-h-[160px] placeholder:text-slate-400 dark:placeholder:text-slate-700"
-                        placeholder="Briefly describe your health concern..."
+                        placeholder={t('home.form.reason_placeholder')}
                       />
                     </div>
-                    {atClinic && (
-                      <div className="mt-4 flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl w-fit">
-                        <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-500 animate-pulse" />
-                        <span className="text-[9px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest">
-                          Arrival Mode Active: Your presence is pre-filled above
-                        </span>
-                      </div>
-                    )}
                   </div>
 
                   <input
                     type="hidden"
                     name="redirectTo"
-                    value={(resolvedParams.redirect as string) || ''}
+                    value={redirectParam}
                   />
                   <input
                     type="hidden"
@@ -237,7 +238,10 @@ export default async function BookingPage({
                   />
 
                   <div className="pt-4 md:pt-8 group/btn relative">
-                    <SubmitButton className="w-full text-lg md:text-xl py-8 md:py-10 rounded-[1.8rem] md:rounded-[3rem] font-black uppercase tracking-[0.4em] shadow-[0_20px_50px_-10px_rgba(16,185,129,0.5)] transition-all hover:shadow-[0_30px_70px_-10px_rgba(16,185,129,0.7)]" />
+                    <SubmitButton 
+                      className="w-full text-lg md:text-xl py-8 md:py-10 rounded-[1.8rem] md:rounded-[3rem] font-black uppercase tracking-[0.4em] shadow-[0_20px_50px_-10px_rgba(16,185,129,0.5)] transition-all hover:shadow-[0_30px_70px_-10px_rgba(16,185,129,0.7)]" 
+                      text={t('home.form.submit')}
+                    />
                   </div>
                 </form>
               </div>
@@ -248,3 +252,4 @@ export default async function BookingPage({
     </div>
   );
 }
+

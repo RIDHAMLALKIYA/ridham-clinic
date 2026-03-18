@@ -6,6 +6,7 @@ export const patients = pgTable('patients', {
   phoneNumber: varchar('phone_number', { length: 20 }).notNull(),
   email: varchar('email', { length: 255 }),
   reasonForVisit: text('reason_for_visit'),
+  preferredLanguage: varchar('preferred_language', { length: 5 }).default('en'),
   createdAt: timestamp('created_at').defaultNow(),
 });
 

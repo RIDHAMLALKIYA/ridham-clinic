@@ -5,9 +5,11 @@ import { CalendarCheck, Loader2 } from 'lucide-react';
 
 interface SubmitButtonProps {
   className?: string;
+  text?: string;
+  pendingText?: string;
 }
 
-export default function SubmitButton({ className }: SubmitButtonProps) {
+export default function SubmitButton({ className, text, pendingText }: SubmitButtonProps) {
   const { pending } = useFormStatus();
 
   return (
@@ -30,8 +32,8 @@ export default function SubmitButton({ className }: SubmitButtonProps) {
         <CalendarCheck className="w-6 h-6 relative z-10 group-hover/btn:scale-110 transition-transform duration-300" />
       )}
 
-      <span className="relative z-10 tracking-wide">
-        {pending ? 'Requesting...' : 'Request Appointment'}
+      <span className="relative z-10 tracking-wide uppercase">
+        {pending ? (pendingText || '...') : (text || 'Submit')}
       </span>
     </button>
   );
