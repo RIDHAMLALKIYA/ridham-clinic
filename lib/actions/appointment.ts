@@ -6,6 +6,7 @@ import { eq, and, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { sendEmail } from '@/lib/services/mail';
+import { sendWhatsApp } from '@/lib/services/whatsapp';
 import { getSession } from '@/lib/auth';
 import { processQueueNotifications } from '@/lib/services/queueNotifications';
 import { validatePhoneNumber } from '@/lib/validations/appointment.validation';
@@ -95,6 +96,21 @@ export async function createBooking(formData: FormData) {
     }
   }
 
+  // Send WhatsApp Notification
+  try {
+    await sendWhatsApp({
+      to: phoneNumber,
+      templateName: 'appointment_request_received',
+      language: preferredLanguage as 'en' | 'gu',
+      variables: {
+        patient_name: name,
+        clinic_name: 'HealthCore Clinic'
+      }
+    });
+  } catch (err) {
+    console.error('[Booking] WhatsApp notification failed:', err);
+  }
+
   revalidatePath('/doctor/dashboard');
   revalidatePath('/admin');
 
@@ -140,6 +156,21 @@ export async function patientCheckIn(
 
   processQueueNotifications().catch(err => console.error('[CheckInSync] Notification error:', err));
 
+  // WhatsApp Check-in Confirmation
+  try {
+    await sendWhatsApp({
+      to: patient.phoneNumber,
+      templateName: 'patient_checkin_success',
+      language: (preferredLanguage || patient.preferredLanguage) as 'en' | 'gu',
+      variables: {
+        patient_name: patient.name,
+        clinic_name: 'HealthCore Clinic'
+      }
+    });
+  } catch (err) {
+    console.error('[CheckInSync] WhatsApp notification failed:', err);
+  }
+
   revalidatePath('/doctor/dashboard');
   revalidatePath('/queue');
   revalidatePath('/admin');
@@ -173,6 +204,21 @@ export async function rejectAppointment(id: number) {
       } catch (err) {
         console.error('[RejectAppointment] Email notification failed:', err);
       }
+    }
+
+    // WhatsApp Cancellation Notification
+    try {
+      await sendWhatsApp({
+        to: patient.phoneNumber,
+        templateName: appt.status === 'requested' ? 'appointment_request_declined' : 'appointment_cancelled',
+        language: (patient.preferredLanguage || 'en') as 'en' | 'gu',
+        variables: {
+          patient_name: patient.name,
+          clinic_name: 'HealthCore Clinic'
+        }
+      });
+    } catch (err) {
+      console.error('[RejectAppointment] WhatsApp notification failed:', err);
     }
   }
 

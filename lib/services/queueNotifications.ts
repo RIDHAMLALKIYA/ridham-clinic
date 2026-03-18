@@ -2,6 +2,7 @@ import { db } from '@/db';
 import { appointments, patients, settings } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { sendEmail } from './mail';
+import { sendWhatsApp } from './whatsapp';
 
 /**
  * Automatically calculates queue positions for arrived patients
@@ -13,6 +14,7 @@ export async function processQueueNotifications() {
       id: appointments.id,
       patientName: patients.name,
       patientEmail: patients.email,
+      phoneNumber: patients.phoneNumber,
       preferredLanguage: patients.preferredLanguage,
     })
     .from(appointments)
@@ -51,6 +53,19 @@ export async function processQueueNotifications() {
           subject,
           message
         );
+
+        // Send WhatsApp Notification
+        await sendWhatsApp({
+          to: patient.phoneNumber,
+          templateName: 'queue_position_update',
+          language: (patient.preferredLanguage || 'en') as 'en' | 'gu',
+          variables: {
+            patient_name: patient.patientName,
+            position: position.toString(),
+            clinic_name: 'HealthCore Clinic'
+          }
+        });
+
         // Lock this notification so it never sends again for this appointment
         await db.insert(settings).values({ key: settingKey, value: 'sent' });
       } catch (err) {
