@@ -99,7 +99,8 @@ export async function createBooking(formData: FormData) {
     }
   }
 
-  // Send WhatsApp Notification with QR Link
+  // WhatsApp Registration Notification (DISABLED for single-message logic)
+  /*
   try {
     await sendWhatsApp({
       to: phoneNumber,
@@ -114,6 +115,7 @@ export async function createBooking(formData: FormData) {
   } catch (err) {
     console.error('[Booking] WhatsApp notification failed:', err);
   }
+  */
 
   revalidatePath('/doctor/dashboard');
   revalidatePath('/admin');

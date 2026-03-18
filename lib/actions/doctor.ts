@@ -92,20 +92,26 @@ export async function updateAppointment(
           }]
         );
 
-        // Send WhatsApp Confirmation
-        /*
-        await sendWhatsApp({
-          to: patient.phoneNumber,
-          templateName: 'appointment_confirmed',
-          language: (patient.preferredLanguage || 'en') as 'en' | 'gu',
-          variables: {
-            patient_name: patient.name,
-            date: appointmentDate || '',
-            time: formatTime12h(appointmentTime || ''),
-            clinic_name: 'HealthCore Clinic'
-          }
-        });
-        */
+        // Send WhatsApp Confirmation with QR Pass Link
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ridham-clinic-v1.vercel.app';
+        const qrPassUrl = `${appUrl}/checkin/pass/${id}`;
+        
+        try {
+          await sendWhatsApp({
+            to: patient.phoneNumber,
+            templateName: 'appointment_confirmed_qr',
+            language: (patient.preferredLanguage || 'en') as 'en' | 'gu',
+            variables: {
+              patient_name: patient.name,
+              date: appointmentDate || '',
+              time: formatTime12h(appointmentTime || ''),
+              qr_link: qrPassUrl,
+              clinic_name: 'HealthCore Clinic'
+            }
+          });
+        } catch (err) {
+          console.error('[DoctorAction] WhatsApp confirmation failed:', err);
+        }
 
         const now = new Date();
         const thirtyMinBefore = new Date(scheduledAt.getTime() - 30 * 60 * 1000);
@@ -197,14 +203,26 @@ export async function scheduleReappointment(patientId: number, date: string, tim
 
     try {
       await sendEmail(patient.email, isGu ? 'ફોલો-અપ કન્ફર્મ' : 'Follow-up Confirmed', emailText);
-      /*
-      await sendWhatsApp({
-        to: patient.phoneNumber,
-        templateName: 'appointment_confirmed',
-        language: (patient.preferredLanguage || 'en') as 'en' | 'gu',
-        variables: { patient_name: patient.name, date, time: formatTime12h(time), clinic_name: 'HealthCore Clinic' }
-      });
-      */
+      
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ridham-clinic-v1.vercel.app';
+      const qrPassUrl = `${appUrl}/checkin/pass/${id}`;
+      
+      try {
+        await sendWhatsApp({
+          to: patient.phoneNumber,
+          templateName: 'appointment_confirmed_qr',
+          language: (patient.preferredLanguage || 'en') as 'en' | 'gu',
+          variables: { 
+            patient_name: patient.name, 
+            date, 
+            time: formatTime12h(time), 
+            qr_link: qrPassUrl,
+            clinic_name: 'HealthCore Clinic' 
+          }
+        });
+      } catch (err) {
+        console.error('[Reappointment] WhatsApp notification failed:', err);
+      }
       const now = new Date();
       if (scheduledAt > now) {
         await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact', patient.preferredLanguage || 'en');
