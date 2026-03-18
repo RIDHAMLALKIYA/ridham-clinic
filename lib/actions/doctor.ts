@@ -93,6 +93,7 @@ export async function updateAppointment(
         );
 
         // Send WhatsApp Confirmation
+        /*
         await sendWhatsApp({
           to: patient.phoneNumber,
           templateName: 'appointment_confirmed',
@@ -104,6 +105,7 @@ export async function updateAppointment(
             clinic_name: 'HealthCore Clinic'
           }
         });
+        */
 
         const now = new Date();
         const thirtyMinBefore = new Date(scheduledAt.getTime() - 30 * 60 * 1000);
@@ -195,12 +197,14 @@ export async function scheduleReappointment(patientId: number, date: string, tim
 
     try {
       await sendEmail(patient.email, isGu ? 'ફોલો-અપ કન્ફર્મ' : 'Follow-up Confirmed', emailText);
+      /*
       await sendWhatsApp({
         to: patient.phoneNumber,
         templateName: 'appointment_confirmed',
         language: (patient.preferredLanguage || 'en') as 'en' | 'gu',
         variables: { patient_name: patient.name, date, time: formatTime12h(time), clinic_name: 'HealthCore Clinic' }
       });
+      */
       const now = new Date();
       if (scheduledAt > now) {
         await scheduleReminder(id, patient.name, patient.email, scheduledAt, 'exact', patient.preferredLanguage || 'en');
@@ -225,12 +229,14 @@ export async function markAsNotArrived(appointmentId: number) {
     await sendEmail(patient.email, subject, message);
 
     try {
+      /*
       await sendWhatsApp({
         to: patient.phoneNumber,
         templateName: 'missed_appointment',
         language: (patient.preferredLanguage || 'en') as 'en' | 'gu',
         variables: { patient_name: patient.name, clinic_name: 'HealthCore Clinic', clinic_link: 'https://ridham-clinic-v1.vercel.app' }
       });
+      */
     } catch (err) {
       console.error('[Missed] WhatsApp failed:', err);
     }

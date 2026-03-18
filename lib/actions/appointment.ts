@@ -157,6 +157,7 @@ export async function patientCheckIn(
   processQueueNotifications().catch(err => console.error('[CheckInSync] Notification error:', err));
 
   // WhatsApp Check-in Confirmation
+  /* 
   try {
     await sendWhatsApp({
       to: patient.phoneNumber,
@@ -170,6 +171,7 @@ export async function patientCheckIn(
   } catch (err) {
     console.error('[CheckInSync] WhatsApp notification failed:', err);
   }
+  */
 
   revalidatePath('/doctor/dashboard');
   revalidatePath('/queue');
@@ -207,6 +209,7 @@ export async function rejectAppointment(id: number) {
     }
 
     // WhatsApp Cancellation Notification
+    /*
     try {
       await sendWhatsApp({
         to: patient.phoneNumber,
@@ -220,6 +223,7 @@ export async function rejectAppointment(id: number) {
     } catch (err) {
       console.error('[RejectAppointment] WhatsApp notification failed:', err);
     }
+    */
   }
 
   await db.delete(appointments).where(eq(appointments.id, id));
