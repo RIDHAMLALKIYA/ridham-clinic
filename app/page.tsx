@@ -7,8 +7,11 @@ import SubmitButton from '@/components/ui/SubmitButton';
 import AnimatedWrapper from '@/components/layout/AnimatedWrapper';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function BookingPage() {
+export const dynamic = 'force-dynamic';
+
+function BookingContent() {
   const { t, language } = useLanguage();
   const searchParams = useSearchParams();
   const isSuccess = searchParams.get('success') === '1';
@@ -253,3 +256,10 @@ export default function BookingPage() {
   );
 }
 
+export default function BookingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
+      <BookingContent />
+    </Suspense>
+  );
+}

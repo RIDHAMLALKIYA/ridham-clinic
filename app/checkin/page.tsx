@@ -18,8 +18,11 @@ import CheckInButton from '@/components/ui/CheckInButton';
 import AnimatedWrapper from '@/components/layout/AnimatedWrapper';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function CheckInPage() {
+export const dynamic = 'force-dynamic';
+
+function CheckInContent() {
   const { t, language } = useLanguage();
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
@@ -33,8 +36,6 @@ export default function CheckInPage() {
     const emergencyFlag = formData.get('emergencyFlag') === 'on';
     const langPreference = formData.get('language') as string;
     
-    // We can't use server action directly in 'use client' if it uses 'use server' inside? 
-    // Actually nextjs allows it.
     const res = await patientCheckIn(name, phone, emergencyFlag, langPreference);
 
     if (!res.success) {
@@ -270,5 +271,13 @@ export default function CheckInPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function CheckInPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
+      <CheckInContent />
+    </Suspense>
   );
 }
