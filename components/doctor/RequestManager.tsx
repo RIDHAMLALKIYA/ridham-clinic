@@ -5,7 +5,7 @@ import { Calendar, UserCheck, X, Activity, UserPlus, Clock } from 'lucide-react'
 import { updateAppointment, rejectAppointment } from '@/lib/actions';
 import { withRetry } from '@/lib/utils/retry';
 import { prefetchPatientData } from '@/lib/actions/prefetch';
-import { formatDateTime } from '@/lib/utils';
+import { formatDateTime, formatTime12h } from '@/lib/utils';
 
 interface RequestAppt {
     id: number;
@@ -117,7 +117,7 @@ export default function RequestManager({ initialRequests }: { initialRequests: R
                                             />
                                         </div>
                                         <div className="space-y-1">
-                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Time</label>
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Time ({formatTime12h(selectedTime)})</label>
                                             <input 
                                                 type="time" 
                                                 value={selectedTime}
