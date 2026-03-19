@@ -4,8 +4,10 @@ import { authenticate, seedAccounts } from '@/lib/actions';
 import { Lock, Mail, ShieldCheck, UserPlus } from 'lucide-react';
 import SubmitButton from '@/components/ui/SubmitButton';
 import AnimatedWrapper from '@/components/layout/AnimatedWrapper';
+import { useState } from 'react';
 
 export default function LoginPage() {
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-transparent relative overflow-hidden">
       <div className="w-full max-w-md">
@@ -30,9 +32,10 @@ export default function LoginPage() {
               <form
                 action={async (formData) => {
                   try {
+                    setErrorMsg(null);
                     const res = await authenticate(formData);
                     if (res?.error) {
-                      alert(res.error);
+                      setErrorMsg(res.error);
                     }
                   } catch (e) {
                     if (e instanceof Error && e.message === 'NEXT_REDIRECT') throw e;
@@ -79,6 +82,12 @@ export default function LoginPage() {
                     />
                   </div>
                 </div>
+
+                {errorMsg && (
+                  <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm font-medium text-center animate-pulse">
+                    {errorMsg}
+                  </div>
+                )}
 
                 <div className="pt-6">
                   <SubmitButton className="shadow-[0_20px_40px_-10px_rgba(16,185,129,0.4)]" />

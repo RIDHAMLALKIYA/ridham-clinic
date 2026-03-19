@@ -31,11 +31,13 @@ function checkRateLimit(email: string): { blocked: boolean; minutesLeft?: number
 function recordFailedAttempt(email: string) {
   const record = loginAttempts.get(email) || { count: 0, lockedUntil: 0 };
   record.count += 1;
+  const attemptsRemaining = MAX_ATTEMPTS - record.count;
   if (record.count >= MAX_ATTEMPTS) {
     record.lockedUntil = Date.now() + LOCK_DURATION_MS;
     console.warn(`[Security] 🔒 Account locked for 15 min: ${email} (${record.count} failed attempts)`);
   }
   loginAttempts.set(email, record);
+  return attemptsRemaining;
 }
 
 function clearAttempts(email: string) {
@@ -54,8 +56,11 @@ export async function authenticate(formData: FormData) {
 
   const [user] = await db.select().from(users).where(eq(users.email, email));
   if (!user || !(await bcrypt.compare(password, user.password))) {
-    recordFailedAttempt(email);
-    return { error: 'Invalid email or password' };
+    const remaining = recordFailedAttempt(email);
+    if (remaining <= 0) {
+      return { error: 'Too many failed attempts. Account locked for 15 minute(s). Please try again later.' };
+    }
+    return { error: `Invalid email or password. You have ${remaining} attempt(s) remaining.` };
   }
 
   // Successful login — clear any failed attempt records
