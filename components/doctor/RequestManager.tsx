@@ -5,6 +5,7 @@ import { Calendar, UserCheck, X, Activity, UserPlus, Clock } from 'lucide-react'
 import { updateAppointment, rejectAppointment } from '@/lib/actions';
 import { withRetry } from '@/lib/utils/retry';
 import { prefetchPatientData } from '@/lib/actions/prefetch';
+import { formatDateTime } from '@/lib/utils';
 
 interface RequestAppt {
     id: number;
@@ -12,6 +13,7 @@ interface RequestAppt {
     reason: string | null;
     phone: string;
     emergency: boolean | null;
+    createdAt?: Date | string | null;
 }
 
 export default function RequestManager({ initialRequests }: { initialRequests: RequestAppt[] }) {
@@ -74,9 +76,15 @@ export default function RequestManager({ initialRequests }: { initialRequests: R
                                         <Activity size={10} className="text-emerald-500" />
                                         <p className="text-[10px] font-bold text-slate-400">{appt.phone}</p>
                                     </div>
+                                    <div className="flex items-center gap-2 mt-1.5 opacity-60">
+                                        <Clock size={10} className="text-emerald-500" />
+                                        <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">
+                                            {formatDateTime(appt.createdAt)}
+                                        </p>
+                                    </div>
                                 </div>
                                 {appt.emergency && (
-                                    <div className="bg-red-600/10 text-red-600 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest animate-pulse border border-red-500/20">
+                                    <div className="bg-red-600/10 text-red-600 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest animate-pulse border border-red-500/20 shrink-0">
                                         Urgent
                                     </div>
                                 )}

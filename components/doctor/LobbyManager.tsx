@@ -2,11 +2,12 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Users, BellRing, Activity, Search, ShieldAlert, Zap, Filter, CheckCircle2, X as CloseIcon, Loader2 } from 'lucide-react';
+import { Users, BellRing, Activity, Search, ShieldAlert, Zap, Filter, CheckCircle2, X as CloseIcon, Loader2, Clock } from 'lucide-react';
 import { callPatient, rejectAppointment } from '@/lib/actions';
 import { withRetry } from '@/lib/utils/retry';
 import { prefetchPatientData } from '@/lib/actions/prefetch';
 import { useLanguage } from '@/components/providers/LanguageProvider';
+import { formatDateTime } from '@/lib/utils';
 
 interface Appointment {
   id: number;
@@ -14,6 +15,7 @@ interface Appointment {
   phone: string;
   reason: string | null;
   emergency: boolean | null;
+  createdAt?: Date | string | null;
 }
 
 export default function LobbyManager({ initialAppointments }: { initialAppointments: Appointment[] }) {
@@ -261,6 +263,12 @@ export default function LobbyManager({ initialAppointments }: { initialAppointme
                 <div className="flex items-center gap-3">
                    <Activity size={12} className="text-emerald-500 opacity-40" />
                    <p className="text-sm font-bold text-slate-500 dark:text-white/40">{appt.phone}</p>
+                </div>
+                <div className="flex items-center gap-3 opacity-60">
+                   <Clock size={12} className="text-emerald-500" />
+                   <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-emerald-500/50">
+                       {formatDateTime(appt.createdAt)}
+                   </p>
                 </div>
                 <div className="flex items-center gap-3 pt-2">
                   {appt.emergency && (

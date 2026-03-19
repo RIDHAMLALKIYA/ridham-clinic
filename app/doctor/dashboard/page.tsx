@@ -72,6 +72,7 @@ export default async function DoctorDashboard() {
       reason: patients.reasonForVisit,
       phone: patients.phoneNumber,
       emergency: appointments.emergencyFlag,
+      createdAt: appointments.createdAt,
     })
     .from(appointments)
     .innerJoin(patients, eq(appointments.patientId, patients.id))
@@ -83,6 +84,7 @@ export default async function DoctorDashboard() {
       reason: patients.reasonForVisit,
       phone: patients.phoneNumber,
       emergency: appointments.emergencyFlag,
+      createdAt: appointments.createdAt,
     })
     .from(appointments)
     .innerJoin(patients, eq(appointments.patientId, patients.id))
