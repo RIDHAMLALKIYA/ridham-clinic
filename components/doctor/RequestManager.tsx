@@ -19,17 +19,25 @@ interface RequestAppt {
 export default function RequestManager({ initialRequests }: { initialRequests: RequestAppt[] }) {
     const [requests, setRequests] = useState(initialRequests);
     const [isPending, startTransition] = useTransition();
+    const [expandedId, setExpandedId] = useState<number | null>(null);
+    const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString('en-CA'));
+    const [selectedTime, setSelectedTime] = useState('09:00');
 
     const handleAction = async (id: number, action: 'confirm' | 'reject') => {
+        if (action === 'confirm' && expandedId !== id) {
+            setExpandedId(id);
+            return;
+        }
+
         const original = [...requests];
         // OPTIMISTIC: remove from list instantly
         setRequests(prev => prev.filter(r => r.id !== id));
+        setExpandedId(null);
 
         startTransition(async () => {
             try {
                 if (action === 'confirm') {
-                    const today = new Date().toLocaleDateString('en-CA');
-                    await withRetry(() => updateAppointment(id, 'scheduled', today, '09:00'), { retries: 3 });
+                    await withRetry(() => updateAppointment(id, 'scheduled', selectedDate, selectedTime), { retries: 3 });
                 } else {
                     await withRetry(() => rejectAppointment(id), { retries: 3 });
                 }
@@ -96,22 +104,61 @@ export default function RequestManager({ initialRequests }: { initialRequests: R
                                 </p>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <button
-                                    onClick={() => handleAction(appt.id, 'confirm')}
-                                    className="py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-90 shadow-xl shadow-emerald-500/20"
-                                >
-                                    <UserCheck className="w-4 h-4" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest">Confirm</span>
-                                </button>
-                                <button
-                                    onClick={() => handleAction(appt.id, 'reject')}
-                                    className="py-4 bg-white/50 dark:bg-white/5 hover:bg-red-500/10 hover:text-red-500 text-slate-400 border border-slate-200 dark:border-white/10 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-90 shadow-xl"
-                                >
-                                    <X className="w-4 h-4" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest">Decline</span>
-                                </button>
-                            </div>
+                            {expandedId === appt.id ? (
+                                <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Date</label>
+                                            <input 
+                                                type="date" 
+                                                value={selectedDate}
+                                                onChange={(e) => setSelectedDate(e.target.value)}
+                                                className="w-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-[10px] font-bold outline-none focus:border-emerald-500 transition-all"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Time</label>
+                                            <input 
+                                                type="time" 
+                                                value={selectedTime}
+                                                onChange={(e) => setSelectedTime(e.target.value)}
+                                                className="w-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-[10px] font-bold outline-none focus:border-emerald-500 transition-all"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => handleAction(appt.id, 'confirm')}
+                                            className="flex-1 py-3 bg-slate-900 dark:bg-emerald-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-[1.02] transition-all shadow-lg active:scale-95"
+                                        >
+                                            Schedule & Confirm
+                                        </button>
+                                        <button
+                                            onClick={() => setExpandedId(null)}
+                                            className="p-3 bg-slate-100 dark:bg-white/5 text-slate-400 rounded-xl hover:text-red-500 transition-colors"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button
+                                        onClick={() => handleAction(appt.id, 'confirm')}
+                                        className="py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-90 shadow-xl shadow-emerald-500/20"
+                                    >
+                                        <UserCheck className="w-4 h-4" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Confirm</span>
+                                    </button>
+                                    <button
+                                        onClick={() => handleAction(appt.id, 'reject')}
+                                        className="py-4 bg-white/50 dark:bg-white/5 hover:bg-red-500/10 hover:text-red-500 text-slate-400 border border-slate-200 dark:border-white/10 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-90 shadow-xl"
+                                    >
+                                        <X className="w-4 h-4" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Decline</span>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     ))
                 )}
