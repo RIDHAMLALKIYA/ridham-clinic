@@ -270,6 +270,22 @@ export async function getNotificationCounts() {
   return { requests: Number(reqData[0]?.count || 0), queue: Number(queueData[0]?.count || 0) };
 }
 
+export async function sendManualReminder(id: number) {
+  await requireAuth('doctor');
+  const [appt] = await db.select().from(appointments).where(eq(appointments.id, id));
+  if (!appt) return;
+  const [patient] = await db.select().from(patients).where(eq(patients.id, appt.patientId));
+  if (patient?.email) {
+    const isGu = patient.preferredLanguage === 'gu';
+    const emailSubject = isGu ? 'એપોઈન્ટમેન્ટ રીમાઇન્ડર - હેલ્થકોર ક્લિનિક' : 'Appointment Reminder - HealthCore Clinic';
+    const emailText = isGu
+      ? `નમસ્તે ${patient.name},\n\nહેલ્થકોર ક્લિનિકમાં તમારી એપોઈન્ટમેન્ટ ${appt.appointmentDate} ના રોજ ${formatTime12h(appt.appointmentTime || '')} વાગ્યે છે. અમે તમારી રાહ જોઈ રહ્યા છીએ!\n\nશ્રેષ્ઠ શુભેચ્છાઓ,\nહેલ્થકોર ટીમ`
+      : `Hello ${patient.name},\n\nJust a reminder for your appointment at HealthCore Clinic on ${appt.appointmentDate} at ${formatTime12h(appt.appointmentTime || '')}. We are looking forward to seeing you!\n\nBest regards,\nHealthCore Team`;
+
+    await sendEmail(patient.email, emailSubject, emailText);
+  }
+}
+
 export async function getAttendedPatientsByDate(date: string) {
   await requireAuth('doctor');
   return await db.select({ id: appointments.id, patientName: patients.name, phone: patients.phoneNumber, email: patients.email }).from(appointments).innerJoin(patients, eq(appointments.patientId, patients.id)).where(and(or(eq(appointments.status, 'completed'), eq(appointments.status, 'finalized')), eq(appointments.appointmentDate, date))).orderBy(desc(appointments.id));
