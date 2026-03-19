@@ -21,7 +21,11 @@ export default function RequestManager({ initialRequests }: { initialRequests: R
     const [isPending, startTransition] = useTransition();
     const [expandedId, setExpandedId] = useState<number | null>(null);
     const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString('en-CA'));
-    const [selectedTime, setSelectedTime] = useState('09:00');
+    
+    // Time Selection States (12-hour format)
+    const [selHour, setSelHour] = useState('09');
+    const [selMin, setSelMin] = useState('00');
+    const [selAMPM, setSelAMPM] = useState('AM');
 
     const handleAction = async (id: number, action: 'confirm' | 'reject') => {
         if (action === 'confirm' && expandedId !== id) {
@@ -37,7 +41,13 @@ export default function RequestManager({ initialRequests }: { initialRequests: R
         startTransition(async () => {
             try {
                 if (action === 'confirm') {
-                    await withRetry(() => updateAppointment(id, 'scheduled', selectedDate, selectedTime), { retries: 3 });
+                    // Convert 12h to 24h for backend
+                    let hour24 = parseInt(selHour);
+                    if (selAMPM === 'PM' && hour24 < 12) hour24 += 12;
+                    if (selAMPM === 'AM' && hour24 === 12) hour24 = 0;
+                    const finalTime = `${hour24.toString().padStart(2, '0')}:${selMin}`;
+                    
+                    await withRetry(() => updateAppointment(id, 'scheduled', selectedDate, finalTime), { retries: 3 });
                 } else {
                     await withRetry(() => rejectAppointment(id), { retries: 3 });
                 }
@@ -117,13 +127,36 @@ export default function RequestManager({ initialRequests }: { initialRequests: R
                                             />
                                         </div>
                                         <div className="space-y-1">
-                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Time ({formatTime12h(selectedTime)})</label>
-                                            <input 
-                                                type="time" 
-                                                value={selectedTime}
-                                                onChange={(e) => setSelectedTime(e.target.value)}
-                                                className="w-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-[10px] font-bold outline-none focus:border-emerald-500 transition-all"
-                                            />
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Time (12h)</label>
+                                            <div className="flex items-center gap-1">
+                                                <select
+                                                    value={selHour}
+                                                    onChange={(e) => setSelHour(e.target.value)}
+                                                    className="bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-xl px-2 py-2 text-[10px] font-bold outline-none focus:border-emerald-500 transition-all appearance-none cursor-pointer"
+                                                >
+                                                    {['01','02','03','04','05','06','07','08','09','10','11','12'].map(h => (
+                                                        <option key={h} value={h} className="dark:bg-slate-900">{h}</option>
+                                                    ))}
+                                                </select>
+                                                <span className="text-slate-400 font-black">:</span>
+                                                <select
+                                                    value={selMin}
+                                                    onChange={(e) => setSelMin(e.target.value)}
+                                                    className="bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-xl px-2 py-2 text-[10px] font-bold outline-none focus:border-emerald-500 transition-all appearance-none cursor-pointer"
+                                                >
+                                                    {['00','15','30','45'].map(m => (
+                                                        <option key={m} value={m} className="dark:bg-slate-900">{m}</option>
+                                                    ))}
+                                                </select>
+                                                <select
+                                                    value={selAMPM}
+                                                    onChange={(e) => setSelAMPM(e.target.value)}
+                                                    className="bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-xl px-2 py-2 text-[10px] font-bold outline-none focus:border-emerald-500 transition-all appearance-none cursor-pointer text-emerald-500 font-black"
+                                                >
+                                                    <option value="AM" className="dark:bg-slate-900">AM</option>
+                                                    <option value="PM" className="dark:bg-slate-900">PM</option>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="flex gap-3">
