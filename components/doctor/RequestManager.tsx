@@ -142,9 +142,9 @@ export default function RequestManager({ initialRequests }: { initialRequests: R
                                                 <select
                                                     value={selMin}
                                                     onChange={(e) => setSelMin(e.target.value)}
-                                                    className="bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-xl px-2 py-2 text-[10px] font-bold outline-none focus:border-emerald-500 transition-all appearance-none cursor-pointer"
+                                                    className="bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-xl px-2 py-2 text-[10px] font-bold outline-none focus:border-emerald-500 transition-all appearance-none cursor-pointer max-h-40"
                                                 >
-                                                    {['00','15','30','45'].map(m => (
+                                                    {Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')).map(m => (
                                                         <option key={m} value={m} className="dark:bg-slate-900">{m}</option>
                                                     ))}
                                                 </select>
