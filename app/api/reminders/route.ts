@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Parse the body
+    
     const { patientName, email, messageType, preferredLanguage } = JSON.parse(bodyText);
 
     if (!email) return NextResponse.json({ success: false, error: 'Email missing' });
