@@ -118,24 +118,24 @@ export default function QueueClient({
       </div>
 
       {/* SIDEBAR: WAITING LIST */}
-      <div className="flex-1 min-w-0 order-1 lg:order-2 flex flex-col h-screen">
+      <div className="flex-1 min-w-0 order-1 lg:order-2 flex flex-col h-screen overflow-hidden">
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="flex-1 flex flex-col h-full"
+          className="flex-1 flex flex-col h-full overflow-hidden"
         >
-          <div className="bg-black border-l border-white/5 p-10 lg:p-16 shadow-2xl flex flex-col h-full relative overflow-hidden group">
-            <div className="flex items-center justify-between mb-8 relative z-20">
-              <div className="flex items-center gap-6">
-                <div className="bg-emerald-600 p-4 lg:p-6 rounded-[1.5rem] lg:rounded-[2rem] shadow-[0_20px_40px_-10px_rgba(5,150,105,0.4)]">
-                  <Users className="w-10 h-10 lg:w-12 lg:h-12 text-white" />
+          <div className="bg-black border-l border-white/5 p-6 md:p-10 lg:p-16 shadow-2xl flex flex-col h-full relative overflow-hidden group">
+            <div className="flex items-center justify-between mb-6 md:mb-8 relative z-20">
+              <div className="flex items-center gap-4 md:gap-6">
+                <div className="bg-emerald-600 p-3 md:p-4 lg:p-6 rounded-2xl lg:rounded-[2rem] shadow-[0_20px_40px_-10px_rgba(5,150,105,0.4)]">
+                  <Users className="w-6 h-6 md:w-10 md:h-10 lg:w-12 lg:h-12 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-3xl lg:text-4xl font-black tracking-tighter uppercase mb-1 text-white">
+                  <h2 className="text-xl md:text-3xl lg:text-4xl font-black tracking-tighter uppercase mb-0.5 md:mb-1 text-white">
                     {t('nav.lobby')}
                   </h2>
-                  <p className="text-emerald-400 font-black text-[10px] uppercase tracking-[0.4em]">
+                  <p className="text-emerald-400 font-black text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em]">
                     {arrivedAppointments.length} {t('queue.active_count')}
                   </p>
                 </div>
@@ -184,31 +184,31 @@ export default function QueueClient({
                           opacity: { duration: 0.4 },
                           default: { type: 'spring', stiffness: 300, damping: 25 },
                         }}
-                        className={`flex items-center gap-4 md:gap-8 p-6 md:p-8 lg:p-10 rounded-[1.8rem] md:rounded-[2.5rem] border transition-all duration-700 ${idx === 0 ? 'bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-900 border-white/20 shadow-[0_30px_60px_-15px_rgba(5,150,105,0.6)] scale-[1.03] z-40' : 'bg-white/5 border-white/5 hover:bg-white/10'}`}
+                        className={`flex items-center gap-3 md:gap-8 p-4 md:p-8 lg:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border transition-all duration-700 ${idx === 0 ? 'bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-900 border-white/20 shadow-[0_30px_60px_-15px_rgba(5,150,105,0.6)] scale-[1.01] md:scale-[1.03] z-40' : 'bg-white/5 border-white/5 hover:bg-white/10'}`}
                       >
                         <div
-                          className={`w-10 h-10 md:w-14 md:h-14 lg:w-18 lg:h-18 rounded-[0.8rem] md:rounded-[1.2rem] lg:rounded-[1.5rem] flex-shrink-0 flex items-center justify-center font-black text-lg md:text-2xl lg:text-3xl shadow-inner ${idx === 0 ? 'bg-white text-emerald-800' : 'bg-white/5 text-emerald-500'}`}
+                          className={`w-9 h-9 md:w-14 md:h-14 lg:w-18 lg:h-18 rounded-[0.6rem] md:rounded-[1.2rem] lg:rounded-[1.5rem] flex-shrink-0 flex items-center justify-center font-black text-base md:text-2xl lg:text-3xl shadow-inner ${idx === 0 ? 'bg-white text-emerald-800' : 'bg-white/5 text-emerald-500'}`}
                         >
                           {idx + 1}
                         </div>
                         <div className="flex-1 overflow-hidden">
-                           <div className="flex items-center gap-4">
-                              <ScrollingName
-                                 name={appt.patientName}
-                                 className={`text-xl md:text-2xl lg:text-3xl xl:text-4xl font-black uppercase tracking-tighter ${idx === 0 ? 'text-white' : 'text-slate-300'}`}
-                              />
-                              {idx === 0 && (
-                                 <span className="bg-white/20 text-white text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest animate-pulse">Next</span>
-                              )}
-                           </div>
-                           <div className="flex items-center mt-2 md:mt-3 gap-3 opacity-80">
-                             <div className={`h-1 w-8 md:h-1.5 md:w-12 rounded-full ${idx === 0 ? 'bg-white/60' : 'bg-emerald-500/30'}`}></div>
-                             {idx > 0 && (
-                               <span className="text-[9px] md:text-[10px] font-black uppercase text-slate-400 tracking-widest bg-white/5 px-2 md:px-3 py-0.5 rounded border border-white/5">
-                                 ~{idx * 15} {t('queue.min_wait')}
-                               </span>
-                             )}
-                           </div>
+                          <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
+                            <ScrollingName
+                              name={appt.patientName}
+                              className={`text-lg md:text-2xl lg:text-3xl xl:text-4xl font-black uppercase tracking-tighter truncate ${idx === 0 ? 'text-white' : 'text-slate-300'}`}
+                            />
+                            {idx === 0 && (
+                              <span className="bg-white/20 text-white text-[8px] md:text-[10px] px-2 md:px-3 py-1 rounded-full font-black uppercase tracking-widest animate-pulse whitespace-nowrap">Next</span>
+                            )}
+                          </div>
+                          <div className="flex items-center mt-1 md:mt-3 gap-2 md:gap-3 opacity-80">
+                            <div className={`h-0.5 w-6 md:h-1.5 md:w-12 rounded-full ${idx === 0 ? 'bg-white/60' : 'bg-emerald-500/30'}`}></div>
+                            {idx > 0 && (
+                              <span className="text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-widest bg-white/5 px-1.5 md:px-3 py-0.5 rounded border border-white/5 whitespace-nowrap">
+                                ~{idx * 15} {t('queue.min_wait')}
+                              </span>
+                            )}
+                          </div>
                         </div>
                         {appt.emergency && (
                           <div className="flex items-center gap-2 bg-red-600 px-4 py-2 rounded-xl shadow-lg animate-pulse">
@@ -227,7 +227,7 @@ export default function QueueClient({
               <p className="text-[11px] font-black text-slate-300 uppercase tracking-[0.4em] animate-pulse">
                 {t('queue.footer')}
               </p>
-              
+
               <div className="mt-8 flex flex-col items-center gap-3">
                 <span className="text-3xl font-black text-emerald-500/80 tracking-widest italic animate-bounce-slow">
                   {t('queue.namaste')}

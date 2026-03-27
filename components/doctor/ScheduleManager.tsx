@@ -60,13 +60,13 @@ export default function ScheduleManager({ initialSchedule }: { initialSchedule: 
     };
 
     return (
-        <div className="glass-vip-polished rounded-[3.5rem] p-10 border border-white/20 shadow-2xl relative overflow-hidden group">
-            <div className="flex items-center justify-between mb-8 text-left px-2">
-                <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-4 uppercase tracking-tighter">
-                    <Timer className="w-6 h-6 text-emerald-600" />
+        <div className="glass-vip-polished rounded-[2.5rem] md:rounded-[3.5rem] p-5 md:p-10 border border-white/20 shadow-2xl relative overflow-hidden group">
+            <div className="flex items-center justify-between mb-6 md:mb-8 text-left px-2">
+                <h2 className="text-lg md:text-xl font-black text-slate-900 dark:text-white flex items-center gap-3 md:gap-4 uppercase tracking-tighter">
+                    <Timer className="w-5 h-5 md:w-6 h-6 text-emerald-600" />
                     Today's Schedule
                 </h2>
-                <span className="bg-slate-100 dark:bg-white/10 px-4 py-1.5 rounded-2xl text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest shadow-inner">
+                <span className="bg-slate-100 dark:bg-white/10 px-3 md:px-4 py-1.5 rounded-2xl text-[9px] md:text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest shadow-inner">
                     {schedule.length} Slots
                 </span>
             </div>
@@ -82,11 +82,11 @@ export default function ScheduleManager({ initialSchedule }: { initialSchedule: 
                     schedule.map((appt) => (
                         <div
                             key={appt.id}
-                            className={`flex items-center justify-between p-6 bg-slate-50/50 dark:bg-white/5 rounded-[2rem] border border-slate-100 dark:border-white/5 transition-all hover:border-emerald-500/30 ${busyId === appt.id ? 'opacity-50 blur-[1px]' : ''}`}
+                            className={`flex items-center justify-between p-4 md:p-6 bg-slate-50/50 dark:bg-white/5 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 dark:border-white/5 transition-all hover:border-emerald-500/30 ${busyId === appt.id ? 'opacity-50 blur-[1px]' : ''}`}
                         >
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-slate-100 dark:bg-white/10 rounded-xl flex items-center justify-center shrink-0">
-                                    <Clock size={16} className="text-emerald-500" />
+                            <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
+                                <div className="w-8 h-8 md:w-10 md:h-10 bg-slate-100 dark:bg-white/10 rounded-lg md:rounded-xl flex items-center justify-center shrink-0">
+                                    <Clock size={14} className="text-emerald-500 md:size-[16px]" />
                                 </div>
                                 <div className="overflow-hidden">
                                     <h3 className="font-black text-slate-900 dark:text-white uppercase tracking-tighter text-sm truncate">

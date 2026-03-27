@@ -35,7 +35,7 @@ function CheckInContent() {
     const phone = `${countryCode}${rawPhone}`;
     const emergencyFlag = formData.get('emergencyFlag') === 'on';
     const langPreference = formData.get('language') as string;
-    
+
     const res = await patientCheckIn(name, phone, emergencyFlag, langPreference);
 
     if (!res.success) {
@@ -52,39 +52,39 @@ function CheckInContent() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto py-12 md:py-24 px-4 sm:px-6 lg:px-8 relative min-h-[80vh]">
+    <div className="w-full max-w-7xl mx-auto py-8 md:py-24 px-4 sm:px-6 lg:px-8 relative min-h-[80vh]">
       {success === '1' ? (
         <AnimatedWrapper className="max-w-2xl mx-auto" tilt>
-          <div className="glass-vip-polished rounded-[3.5rem] p-12 md:p-24 text-center relative group border-beam overflow-hidden">
-            <div className="w-24 h-24 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.3)]">
-              <CheckCircle2 className="h-12 w-12 text-emerald-500" />
+          <div className="glass-vip-polished rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-24 text-center relative group border-beam overflow-hidden">
+            <div className="w-16 h-16 md:w-24 md:h-24 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-8 md:mb-10 shadow-[0_0_50px_-10px_rgba(16,185,129,0.3)]">
+              <CheckCircle2 size={32} className="md:size-[48px] text-emerald-500" />
             </div>
-            <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter">
+            <h2 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white mb-4 md:mb-6 tracking-tighter uppercase">
               {t('nav.checkin')} <span className="text-emerald-500">{t('checkin.success_verified')}</span>
             </h2>
-            <p className="text-xl text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-md mx-auto">
+            <p className="text-sm md:text-xl text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-md mx-auto">
               {t('checkin.success_subtitle')}
             </p>
             <a
               href="/checkin"
-              className="mt-12 inline-block px-10 py-5 bg-emerald-600 text-white font-black rounded-[2rem] hover:bg-emerald-500 transition-all uppercase tracking-[0.3em] text-[10px] shadow-2xl shadow-emerald-500/30 active:scale-95 border border-emerald-400/20"
+              className="mt-8 md:mt-12 inline-block px-8 md:px-10 py-4 md:py-5 bg-emerald-600 text-white font-black rounded-[1.5rem] md:rounded-[2rem] hover:bg-emerald-500 transition-all uppercase tracking-[0.3em] text-[10px] shadow-2xl shadow-emerald-500/30 active:scale-95 border border-emerald-400/20"
             >
               {t('checkin.another')}
             </a>
           </div>
         </AnimatedWrapper>
       ) : (
-        <div className="flex flex-col lg:flex-row gap-16 lg:gap-28 items-center justify-center min-h-[60vh]">
-          <div className="w-full lg:w-5/12 text-left">
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-28 items-center justify-center min-h-[60vh]">
+          <div className="w-full lg:w-5/12 text-center lg:text-left">
             <AnimatedWrapper direction="right">
-              <div className="mb-12">
-                <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full mb-8 shadow-sm">
+              <div className="mb-8 md:mb-12">
+                <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full mb-6 md:mb-8 shadow-sm">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-                  <span className="text-[10px] font-black text-slate-500 dark:text-emerald-400 uppercase tracking-[0.3em]">
+                  <span className="text-[9px] md:text-[10px] font-black text-slate-500 dark:text-emerald-400 uppercase tracking-[0.3em]">
                     {t('checkin.authorized_node')}
                   </span>
                 </div>
-                <h1 className="text-4xl sm:text-7xl lg:text-[6rem] font-black text-slate-900 dark:text-white tracking-tighter leading-[0.9] lg:leading-[0.85] mb-6 md:mb-10">
+                <h1 className="text-4xl sm:text-7xl lg:text-[6rem] font-black text-slate-900 dark:text-white tracking-tighter leading-[0.9] lg:leading-[0.85] mb-6 md:mb-10 uppercase">
                   {t('nav.lobby')} <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500 drop-shadow-[0_0_30px_rgba(16,185,129,0.2)]">
                     {t('checkin.portal')}
@@ -92,20 +92,20 @@ function CheckInContent() {
                   .
                 </h1>
               </div>
-              <p className="text-xl text-slate-500 dark:text-slate-400 font-medium mb-14 leading-relaxed max-w-md tracking-tight">
+              <p className="text-base md:text-xl text-slate-500 dark:text-slate-400 font-medium mb-10 md:mb-14 leading-relaxed max-w-md tracking-tight mx-auto lg:mx-0">
                 {t('checkin.sync_subtitle')}
               </p>
 
-              <div className="grid grid-cols-1 gap-6 max-w-sm">
-                <div className="group flex items-center gap-6 p-6 rounded-[2.5rem] bg-white/40 dark:bg-white/5 backdrop-blur-3xl border border-white/50 dark:border-white/10 shadow-lg transition-all hover:scale-105 active:scale-95">
-                  <div className="bg-emerald-500 p-4 rounded-2xl shadow-[0_10px_20px_-5px_rgba(16,185,129,0.3)] group-hover:rotate-6 transition-transform">
-                    <Zap className="w-6 h-6 text-white" />
+              <div className="flex justify-center lg:justify-start">
+                <div className="group flex items-center gap-4 md:gap-6 p-4 md:p-6 rounded-[1.8rem] md:rounded-[2.5rem] bg-white/40 dark:bg-white/5 backdrop-blur-3xl border border-white/50 dark:border-white/10 shadow-lg transition-all hover:scale-105 active:scale-95">
+                  <div className="bg-emerald-500 p-3 md:p-4 rounded-xl md:rounded-2xl shadow-[0_10px_20px_-5px_rgba(16,185,129,0.3)] group-hover:rotate-6 transition-transform">
+                    <Zap size={20} className="md:size-[24px] text-white" />
                   </div>
-                  <div>
-                    <h3 className="font-black text-slate-900 dark:text-white text-lg tracking-tight uppercase">
+                  <div className="text-left">
+                    <h3 className="font-black text-slate-900 dark:text-white text-base md:text-lg tracking-tight uppercase">
                       {t('checkin.instant_sync')}
                     </h3>
-                    <p className="text-slate-500 text-[10px] font-black mt-1 uppercase tracking-[0.2em] opacity-60">
+                    <p className="text-slate-500 text-[8px] md:text-[10px] font-black mt-1 uppercase tracking-[0.2em] opacity-60">
                       {t('checkin.verified_creds')}
                     </p>
                   </div>
@@ -116,15 +116,15 @@ function CheckInContent() {
 
           <div className="w-full lg:w-7/12">
             <AnimatedWrapper direction="left" delay={0.2} tilt>
-              <div className="glass-vip-polished rounded-[4.5rem] shadow-[0_64px_128px_-32px_rgba(0,0,0,0.15)] dark:shadow-none border border-white/40 dark:border-white/10 relative overflow-hidden transition-all duration-1000 border-beam">
+              <div className="glass-vip-polished rounded-[3rem] md:rounded-[4.5rem] shadow-[0_64px_128px_-32px_rgba(0,0,0,0.15)] dark:shadow-none border border-white/40 dark:border-white/10 relative overflow-hidden transition-all duration-1000 border-beam">
                 {success === 'registered' && (
-                  <div className="mx-12 mt-12 p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-[2.5rem] flex items-start gap-5 backdrop-blur-xl animate-scale-in">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-500 mt-0.5" />
+                  <div className="mx-6 md:mx-12 mt-8 md:mt-12 p-4 md:p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-[1.8rem] md:rounded-[2.5rem] flex items-start gap-4 md:gap-5 backdrop-blur-xl animate-scale-in">
+                    <CheckCircle2 size={24} className="text-emerald-500 mt-0.5" />
                     <div className="text-left">
-                      <h4 className="text-emerald-500 font-black text-xs uppercase tracking-[0.2em]">
+                      <h4 className="text-emerald-500 font-black text-[10px] md:text-xs uppercase tracking-[0.2em]">
                         {t('checkin.node_registered')}
                       </h4>
-                      <p className="text-[10px] text-emerald-500/70 mt-1.5 font-bold uppercase tracking-widest leading-relaxed">
+                      <p className="text-[9px] text-emerald-500/70 mt-1 md:mt-1.5 font-bold uppercase tracking-widest leading-relaxed">
                         {t('checkin.identity_verified')}
                       </p>
                     </div>
@@ -132,13 +132,13 @@ function CheckInContent() {
                 )}
 
                 {error && (
-                  <div className="mx-12 mt-12 p-6 bg-red-500/10 border border-red-500/20 rounded-[2.5rem] flex items-start gap-5 backdrop-blur-xl animate-bounce-in">
-                    <ShieldCheck className="w-6 h-6 text-red-500 mt-0.5" />
+                  <div className="mx-6 md:mx-12 mt-8 md:mt-12 p-4 md:p-6 bg-red-500/10 border border-red-500/20 rounded-[1.8rem] md:rounded-[2.5rem] flex items-start gap-4 md:gap-5 backdrop-blur-xl animate-bounce-in">
+                    <ShieldCheck size={24} className="text-red-500 mt-0.5" />
                     <div className="text-left">
-                      <h4 className="text-red-500 font-black text-xs uppercase tracking-[0.2em]">
+                      <h4 className="text-red-500 font-black text-[10px] md:text-xs uppercase tracking-[0.2em]">
                         {t('checkin.sync_error')}
                       </h4>
-                      <p className="text-[10px] text-red-500/70 mt-1.5 font-bold uppercase tracking-widest leading-relaxed">
+                      <p className="text-[9px] text-red-500/70 mt-1 md:mt-1.5 font-bold uppercase tracking-widest leading-relaxed">
                         {error === 'not_found'
                           ? t('checkin.error_not_found')
                           : error === 'no_appointment'
@@ -151,7 +151,7 @@ function CheckInContent() {
 
                 <form
                   action={handleAction}
-                  className="px-10 py-16 md:p-20 space-y-12"
+                  className="px-6 md:px-10 py-10 md:py-16 md:p-20 space-y-8 md:space-y-12"
                 >
                   <input type="hidden" name="language" value={language} />
                   <div className="flex flex-col gap-12">

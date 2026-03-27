@@ -70,39 +70,39 @@ export default async function AdminPanel() {
   return (
     <div className="space-y-12 animate-fade-in pb-32 font-outfit max-w-[1600px] mx-auto px-6 lg:px-0 relative">
       <AnimatedWrapper direction="down">
-        <div className="glass-vip-polished border-beam rounded-[2rem] md:rounded-[3.5rem] p-6 md:p-14 border border-white/10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.2)] flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-10 overflow-hidden relative group">
-          <div className="flex items-center gap-6 md:gap-10 relative z-10 text-left">
-            <div className="w-16 h-16 md:w-24 md:h-24 bg-slate-950 dark:bg-indigo-600 rounded-[1.2rem] md:rounded-[2rem] flex items-center justify-center text-white shadow-2xl transition-all group-hover:rotate-[-6deg] duration-700 border border-white/10">
-              <ShieldCheck className="w-8 h-8 md:w-12 md:h-12 text-indigo-300" />
+        <div className="glass-vip-polished border-beam rounded-[2rem] md:rounded-[3.5rem] p-5 md:p-14 border border-white/10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.2)] flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-10 overflow-hidden relative group">
+          <div className="flex items-center gap-5 md:gap-10 relative z-10 text-left">
+            <div className="w-16 h-16 md:w-24 md:h-24 bg-slate-950 dark:bg-indigo-600 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-white shadow-2xl transition-all group-hover:rotate-[-6deg] duration-700 border border-white/10">
+              <ShieldCheck size={32} className="md:size-[48px] text-indigo-300" />
             </div>
             <div>
-              <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-slate-100 dark:bg-white/10 rounded-full mb-3 shadow-inner">
+              <div className="inline-flex items-center gap-3 px-3 md:px-4 py-1 md:py-1.5 bg-slate-100 dark:bg-white/10 rounded-full mb-2 md:mb-3 shadow-inner">
                 <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
-                <span className="text-[10px] font-black text-slate-500 dark:text-indigo-400 uppercase tracking-[0.4em]">
+                <span className="text-[9px] md:text-[10px] font-black text-slate-500 dark:text-indigo-400 uppercase tracking-[0.4em]">
                   Root Access Node
                 </span>
               </div>
-              <h1 className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">
+              <h1 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">
                 Admin Control
               </h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-6 w-full md:w-auto relative z-10">
-            <div className="bg-white/50 dark:bg-black/40 border border-slate-200 dark:border-white/10 px-8 py-5 rounded-[2rem] flex items-center gap-6 shadow-xl backdrop-blur-3xl min-w-[200px]">
+          <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto relative z-10">
+            <div className="flex-1 md:flex-none bg-white/50 dark:bg-black/40 border border-slate-200 dark:border-white/10 px-6 md:px-8 py-4 md:py-5 rounded-2xl md:rounded-[2rem] flex items-center justify-between md:justify-start gap-4 md:gap-6 shadow-xl backdrop-blur-3xl">
               <div className="text-left">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] leading-none mb-2">
+                <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] leading-none mb-1 md:mb-2">
                   Network Layer
                 </p>
-                <p className="text-xs font-black text-emerald-500 uppercase tracking-widest leading-none">
+                <p className="text-[10px] md:text-xs font-black text-emerald-500 uppercase tracking-widest leading-none">
                   Healthy | AES-256
                 </p>
               </div>
-              <Zap className="w-5 h-5 text-emerald-500 animate-pulse" />
+              <Zap className="w-4 h-4 md:w-5 md:h-5 text-emerald-500 animate-pulse" />
             </div>
             <form action={logoutUser}>
-              <button className="p-6 bg-white/50 dark:bg-white/5 text-slate-400 hover:text-red-500 border border-slate-200 dark:border-white/10 rounded-[2rem] transition-all shadow-xl hover:shadow-red-500/10 active:scale-90">
-                <LogOut className="w-6 h-6" />
+              <button className="p-4 md:p-6 bg-white/50 dark:bg-white/5 text-slate-400 hover:text-red-500 border border-slate-200 dark:border-white/10 rounded-2xl md:rounded-[2rem] transition-all shadow-xl hover:shadow-red-500/10 active:scale-90">
+                <LogOut className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             </form>
           </div>
@@ -113,36 +113,36 @@ export default async function AdminPanel() {
         {/* TRANSACTION JOURNAL */}
         <div className="xl:col-span-8">
           <AnimatedWrapper direction="right">
-            <div className="glass-vip-polished rounded-[4rem] p-10 md:p-14 border border-white/10 shadow-2xl relative overflow-hidden group">
+            <div className="glass-vip-polished rounded-[2.5rem] md:rounded-[4rem] p-5 md:p-10 lg:p-14 border border-white/10 shadow-2xl relative overflow-hidden group">
               <div className="absolute top-0 right-10 w-64 h-64 bg-indigo-500/5 blur-[100px] rounded-full pointer-events-none"></div>
-              <div className="flex justify-between items-center mb-16 px-4">
-                <h2 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-6 uppercase tracking-tighter">
-                  <LayoutDashboard className="w-10 h-10 text-slate-400 dark:text-indigo-400/50" />
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-6 mb-10 md:mb-16 px-2 md:px-4">
+                <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white flex items-center gap-4 md:gap-6 uppercase tracking-tighter">
+                  <LayoutDashboard className="w-8 h-8 md:w-10 md:h-10 text-slate-400 dark:text-indigo-400/50" />
                   The Journal
                 </h2>
-                <span className="bg-slate-950 dark:bg-black text-white px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.4em] shadow-xl border border-white/5">
+                <span className="bg-slate-950 dark:bg-black text-white px-4 md:px-6 py-2 md:py-2.5 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] shadow-xl border border-white/5">
                   {allAppointments.length} Records
                 </span>
               </div>
 
-              <div className="space-y-6 max-h-[1000px] overflow-y-auto pr-4 custom-scrollbar">
+              <div className="space-y-4 md:space-y-6 max-h-[800px] md:max-h-[1000px] overflow-y-auto pr-2 md:pr-4 custom-scrollbar">
                 {allAppointments.map((appt) => (
                   <div
                     key={appt.id}
-                    className="p-6 md:p-10 bg-white/40 dark:bg-white/[0.03] backdrop-blur-3xl rounded-[2rem] md:rounded-[3rem] border border-slate-200/50 dark:border-white/5 group transition-all duration-700 hover:bg-white dark:hover:bg-black hover:border-emerald-500/30 hover:shadow-2xl hover:scale-[1.01]"
+                    className="p-5 md:p-10 bg-white/40 dark:bg-white/[0.03] backdrop-blur-3xl rounded-[1.8rem] md:rounded-[3rem] border border-slate-200/50 dark:border-white/5 group transition-all duration-700 hover:bg-white dark:hover:bg-black hover:border-emerald-500/30 hover:shadow-2xl hover:scale-[1.01]"
                   >
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-8 mb-6 md:mb-10 pb-6 md:pb-10 border-b border-slate-100 dark:border-white/5">
-                      <div className="flex items-center gap-5 md:gap-8">
-                        <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-900 dark:bg-black border border-white/10 rounded-[1rem] md:rounded-[1.5rem] flex items-center justify-center font-black text-xl md:text-2xl text-slate-400 group-hover:text-emerald-500 transition-all shadow-2xl">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-8 mb-6 md:mb-10 pb-6 md:pb-10 border-b border-slate-100 dark:border-white/5">
+                      <div className="flex items-center gap-4 md:gap-8">
+                        <div className="w-10 h-10 md:w-16 md:h-16 bg-slate-900 dark:bg-black border border-white/10 rounded-xl md:rounded-[1.5rem] flex items-center justify-center font-black text-lg md:text-2xl text-slate-400 group-hover:text-emerald-500 transition-all shadow-2xl">
                           {appt.patientName[0]}
                         </div>
                         <div>
-                          <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none group-hover:text-emerald-500 transition-colors">
+                          <h3 className="text-lg md:text-2xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none group-hover:text-emerald-500 transition-colors">
                             {appt.patientName}
                           </h3>
-                          <div className="flex flex-wrap items-center gap-5 mt-3 text-slate-400 font-black uppercase text-[10px] tracking-[0.3em] opacity-60">
+                          <div className="flex flex-wrap items-center gap-3 md:gap-5 mt-2 md:mt-3 text-slate-400 font-black uppercase text-[9px] md:text-[10px] tracking-[0.3em] opacity-60">
                             <span>{appt.patientPhone}</span>
-                            <div className="w-1 h-1 bg-slate-300 dark:bg-white/10 rounded-full"></div>
+                            <div className="w-1 h-1 bg-slate-300 dark:bg-white/10 rounded-full hidden sm:block"></div>
                             {appt.emergency && (
                               <span className="text-red-500 animate-pulse">Priority Override</span>
                             )}
@@ -150,7 +150,7 @@ export default async function AdminPanel() {
                         </div>
                       </div>
                       <span
-                        className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] border shadow-sm ${appt.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-slate-100 dark:bg-white/5 text-slate-500 border-slate-200 dark:border-white/10'}`}
+                        className={`px-4 md:px-5 py-1.5 md:py-2 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] border shadow-sm ${appt.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-slate-100 dark:bg-white/5 text-slate-500 border-slate-200 dark:border-white/10'}`}
                       >
                         {appt.status}
                       </span>
@@ -186,28 +186,28 @@ export default async function AdminPanel() {
         {/* MASTER INDEX */}
         <div className="xl:col-span-4">
           <AnimatedWrapper direction="left">
-            <div className="glass-vip-polished rounded-[4rem] p-10 md:p-14 border border-white/10 shadow-2xl relative overflow-hidden group">
-              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 opacity-20 group-hover:opacity-100 transition-opacity duration-1000"></div>
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-16 flex items-center gap-6 uppercase tracking-tighter">
-                <Database className="w-8 h-8 text-indigo-500" />
+            <div className="glass-vip-polished rounded-[2.5rem] md:rounded-[4rem] p-6 md:p-14 border border-white/10 shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-full h-1 md:h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 opacity-20 group-hover:opacity-100 transition-opacity duration-1000"></div>
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white mb-8 md:mb-16 flex items-center gap-4 md:gap-6 uppercase tracking-tighter">
+                <Database className="w-6 h-6 md:w-8 h-8 text-indigo-500" />
                 Node Index
               </h2>
 
-              <div className="space-y-4 max-h-[850px] overflow-y-auto custom-scrollbar pr-2">
+              <div className="space-y-3 md:space-y-4 max-h-[600px] md:max-h-[850px] overflow-y-auto custom-scrollbar pr-2">
                 {allPatients.map((patient) => (
                   <div
                     key={patient.id}
-                    className="flex items-center justify-between p-6 bg-white/40 dark:bg-white/[0.03] backdrop-blur-3xl border border-slate-200/50 dark:border-white/5 hover:border-indigo-500/40 rounded-[2rem] transition-all duration-700 group/item hover:bg-white dark:hover:bg-black active:scale-[0.98]"
+                    className="flex items-center justify-between p-4 md:p-6 bg-white/40 dark:bg-white/[0.03] backdrop-blur-3xl border border-slate-200/50 dark:border-white/5 hover:border-indigo-500/40 rounded-[1.5rem] md:rounded-[2rem] transition-all duration-700 group/item hover:bg-white dark:hover:bg-black active:scale-[0.98]"
                   >
-                    <div className="flex items-center gap-6">
-                      <div className="w-12 h-12 bg-slate-950 dark:bg-black border border-white/10 rounded-2xl flex items-center justify-center text-indigo-400 font-black text-sm shadow-2xl">
+                    <div className="flex items-center gap-4 md:gap-6">
+                      <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-950 dark:bg-black border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-indigo-400 font-black text-xs md:text-sm shadow-2xl">
                         {patient.name[0]}
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-sm font-black text-slate-900 dark:text-white tracking-tighter uppercase group-hover/item:text-indigo-400 transition-colors">
+                        <span className="text-xs md:text-sm font-black text-slate-900 dark:text-white tracking-tighter uppercase group-hover/item:text-indigo-400 transition-colors">
                           {patient.name}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 opacity-60">
+                        <span className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest mt-0.5 md:mt-1 opacity-60">
                           ID://{patient.id}
                         </span>
                       </div>

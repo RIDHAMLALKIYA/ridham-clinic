@@ -26,7 +26,7 @@ export default function ConsultationManager({ initialPatient }: { initialPatient
 
     const handleComplete = async () => {
         if (!patient) return;
-        
+
         const original = patient;
         // OPTIMISTIC: remove patient from view instantly
         setPatient(null);
@@ -77,28 +77,28 @@ export default function ConsultationManager({ initialPatient }: { initialPatient
         <button
             disabled={isPending}
             onClick={handleComplete}
-            className="w-full glass-vip-polished rounded-[2.5rem] md:rounded-[4rem] p-8 md:p-16 border border-white/20 shadow-[0_80px_160px_-40px_rgba(0,0,0,0.2)] dark:shadow-none relative overflow-hidden group border-beam text-left transition-all hover:scale-[0.99] active:scale-95 disabled:opacity-50"
+            className="w-full glass-vip-polished rounded-[2.5rem] md:rounded-[4rem] p-6 md:p-16 border border-white/20 shadow-[0_80px_160px_-40px_rgba(0,0,0,0.2)] dark:shadow-none relative overflow-hidden group border-beam text-left transition-all hover:scale-[0.99] active:scale-95 disabled:opacity-50"
         >
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-500/5 pointer-events-none group-hover:from-emerald-500/20 transition-all"></div>
-            <div className="flex flex-col md:flex-row items-center justify-between gap-10 md:gap-16 relative z-10 w-full">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16 relative z-10 w-full">
                 <div className="space-y-6 md:space-y-8 flex-1 w-full">
-                    <div className="inline-flex items-center gap-4 px-6 py-2 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.4em] shadow-2xl shadow-emerald-500/30 animate-pulse">
-                        <Activity size={16} />
+                    <div className="inline-flex items-center gap-3 md:gap-4 px-4 md:px-6 py-2 bg-emerald-600 text-white rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] shadow-2xl shadow-emerald-500/30 animate-pulse">
+                        <Activity size={14} className="md:size-[16px]" />
                         {t('queue.now_serving')}
                     </div>
-                    <div className="space-y-4">
-                        <h3 className="text-4xl sm:text-5xl md:text-[6rem] font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none drop-shadow-sm group-hover:text-emerald-500 transition-colors break-words">
+                    <div className="space-y-3 md:space-y-4">
+                        <h3 className="text-3xl sm:text-5xl md:text-[6rem] font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none drop-shadow-sm group-hover:text-emerald-500 transition-colors break-words">
                             {patient.patientName}
                         </h3>
-                        <div className="flex flex-col gap-5 ml-2">
-                            <div className="flex items-center gap-5">
-                                <div className="h-1 w-20 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-                                <span className="text-emerald-500 font-black text-xs uppercase tracking-[0.5em] opacity-40">
+                        <div className="flex flex-col gap-3 md:gap-5 ml-1 md:ml-2">
+                            <div className="flex items-center gap-3 md:gap-5">
+                                <div className="h-1 w-12 md:w-20 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                                <span className="text-emerald-500 font-black text-[10px] md:text-xs uppercase tracking-[0.5em] opacity-40">
                                     {t('home.form.reason')}
                                 </span>
                             </div>
-                            <div className="max-h-64 overflow-y-auto custom-scrollbar pr-6">
-                                <p className="text-emerald-500 font-bold text-2xl uppercase tracking-[0.2em] leading-snug break-words whitespace-pre-wrap">
+                            <div className="max-h-48 md:max-h-64 overflow-y-auto custom-scrollbar pr-4 md:pr-6">
+                                <p className="text-emerald-500 font-bold text-lg md:text-2xl uppercase tracking-[0.1em] md:tracking-[0.2em] leading-snug break-words whitespace-pre-wrap">
                                     {patient.reason || (language === 'en' ? 'Standard Medical Audit' : 'પ્રામાણિક તબીબી તપાસ')}
                                 </p>
                             </div>
@@ -109,9 +109,9 @@ export default function ConsultationManager({ initialPatient }: { initialPatient
                 <div className="flex flex-col items-center gap-6">
                     <div className="relative">
                         <div className="absolute inset-0 bg-emerald-500/20 blur-[60px] rounded-full group-hover:bg-emerald-500/40 transition-all"></div>
-                        <div 
+                        <div
                             onClick={(e) => { e.stopPropagation(); handleComplete(); }}
-                            className="w-32 h-32 md:w-48 md:h-48 bg-emerald-600 rounded-[2.5rem] md:rounded-[4rem] flex flex-col items-center justify-center text-white shadow-2xl relative z-10 border border-white/20 group-hover:rotate-6 transition-transform group-hover:scale-110 cursor-pointer"
+                            className="w-28 h-28 md:w-48 md:h-48 bg-emerald-600 rounded-[2.5rem] md:rounded-[4rem] flex flex-col items-center justify-center text-white shadow-2xl relative z-10 border border-white/20 group-hover:rotate-6 transition-transform group-hover:scale-110 cursor-pointer"
                         >
                             {isPending ? (
                                 <Loader2 className="w-12 h-12 md:w-16 md:h-16 animate-spin" />

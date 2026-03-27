@@ -12,16 +12,16 @@ interface CompletedPatient {
   email: string | null;
 }
 
-export default function DailyReport({ 
-  initialPatients, 
-  totalCount 
-}: { 
-  initialPatients: CompletedPatient[], 
-  totalCount: number 
+export default function DailyReport({
+  initialPatients,
+  totalCount
+}: {
+  initialPatients: CompletedPatient[],
+  totalCount: number
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const getTodayIST = () => new Intl.DateTimeFormat('en-CA', { 
+  const getTodayIST = () => new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Kolkata',
     year: 'numeric',
     month: '2-digit',
@@ -87,70 +87,70 @@ export default function DailyReport({
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="group/report relative flex items-center justify-between px-10 py-5 bg-gradient-to-r from-emerald-600 to-teal-600 border border-emerald-500 rounded-[2rem] gap-8 shadow-[0_20px_40px_-10px_rgba(16,185,129,0.4)] hover:scale-105 active:scale-95 transition-all text-left"
+        className="group/report relative flex items-center justify-between px-6 md:px-10 py-4 md:py-5 bg-gradient-to-r from-emerald-600 to-teal-600 border border-emerald-500 rounded-[1.8rem] md:rounded-[2rem] gap-4 md:gap-8 shadow-[0_20px_40px_-10px_rgba(16,185,129,0.4)] hover:scale-105 active:scale-95 transition-all text-left"
       >
-        <div className="flex flex-col gap-1 pr-4">
-          <span className="text-[10px] font-black text-emerald-100 uppercase tracking-[0.3em] opacity-80">
-             Audit System
+        <div className="flex flex-col gap-0.5 md:gap-1 pr-2 md:pr-4">
+          <span className="text-[8px] md:text-[10px] font-black text-emerald-100 uppercase tracking-[0.3em] opacity-80">
+            Audit System
           </span>
-          <div className="flex items-center gap-3">
-             <span className="text-2xl md:text-3xl font-black text-white leading-none whitespace-nowrap">
-                {totalCount} Attended
-             </span>
+          <div className="flex items-center gap-2 md:gap-3">
+            <span className="text-xl md:text-3xl font-black text-white leading-none whitespace-nowrap">
+              {totalCount} Attended
+            </span>
           </div>
         </div>
-        <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-white group-hover/report:rotate-12 transition-transform shrink-0">
-           <Download size={22} />
+        <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center text-white group-hover/report:rotate-12 transition-transform shrink-0">
+          <Download size={20} className="md:size-[22px]" />
         </div>
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-12 overflow-hidden">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-3 md:p-12 overflow-hidden">
           <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl" onClick={() => setIsOpen(false)}></div>
-          
+
           <AnimatedWrapper direction="up" className="w-full max-w-5xl relative z-10">
-            <div className="glass-vip-polished rounded-[3rem] md:rounded-[4rem] border border-white/20 shadow-[0_100px_200px_-50px_rgba(0,0,0,1)] overflow-hidden flex flex-col max-h-[90vh]">
-              
+            <div className="glass-vip-polished rounded-[2rem] md:rounded-[4rem] border border-white/20 shadow-[0_100px_200px_-50px_rgba(0,0,0,1)] overflow-hidden flex flex-col max-h-[95vh]">
+
               {/* HEADER: MASSIVE DATE SEARCH */}
-              <div className="p-8 md:p-12 border-b border-white/10 bg-white/5 space-y-10">
+              <div className="p-5 md:p-12 border-b border-white/10 bg-white/5 space-y-6 md:space-y-10">
                 <div className="flex items-center justify-between">
-                   <div className="flex items-center gap-6">
-                      <div className="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-2xl">
-                        <FileText className="text-white" size={28} />
-                      </div>
-                      <div>
-                        <h2 className="text-3xl font-black text-white uppercase tracking-tighter line-clamp-1">Patient Audit History</h2>
-                        <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em] opacity-60">Verified Records Storage</p>
-                      </div>
+                  <div className="flex items-center gap-4 md:gap-6">
+                    <div className="w-11 h-11 md:w-14 md:h-14 bg-emerald-600 rounded-xl md:rounded-2xl flex items-center justify-center shadow-2xl">
+                      <FileText className="text-white md:size-[28px]" size={24} />
                     </div>
-                    <button 
-                        onClick={() => setIsOpen(false)}
-                        className="p-5 bg-white/5 rounded-2xl text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-90"
-                    >
-                        <X size={24} />
-                    </button>
+                    <div>
+                      <h2 className="text-xl md:text-3xl font-black text-white uppercase tracking-tighter line-clamp-1">Patient Audit</h2>
+                      <p className="text-[9px] md:text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em] opacity-60">Verified Records</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="p-3 md:p-5 bg-white/5 rounded-xl md:rounded-2xl text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-90"
+                  >
+                    <X className="md:size-[24px]" size={20} />
+                  </button>
                 </div>
 
-                <div className="bg-slate-900/60 border border-emerald-500/30 rounded-[3rem] p-8 md:p-12 flex flex-col md:flex-row items-center gap-12 shadow-2xl">
-                    <div className="flex-1 w-full space-y-4">
-                        <div className="flex items-center gap-3 ml-2">
-                           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                           <h3 className="text-sm font-black text-emerald-500 uppercase tracking-[0.5em]">Step 1: Pick a Date</h3>
-                        </div>
-                        <div className="relative group/date w-full">
-                            <CalendarIcon size={32} className="absolute left-12 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none group-focus-within/date:scale-110 transition-transform opacity-80" />
-                            <input 
-                                type="date" 
-                                value={selectedDate}
-                                onChange={handleDateChange}
-                                className="bg-black/60 border-2 border-white/10 rounded-[2.5rem] pl-28 pr-12 py-10 text-3xl font-black text-white outline-none focus:border-emerald-500 transition-all w-full cursor-pointer hover:bg-black/80 shadow-inner ring-offset-black focus:ring-4 ring-emerald-500/20"
-                            />
-                        </div>
+                <div className="bg-slate-900/60 border border-emerald-500/30 rounded-[2rem] md:rounded-[3rem] p-5 md:p-12 flex flex-col md:flex-row items-center gap-6 md:gap-12 shadow-2xl">
+                  <div className="flex-1 w-full space-y-3 md:space-y-4">
+                    <div className="flex items-center gap-2 md:gap-3 ml-1 md:ml-2">
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                      <h3 className="text-[10px] md:text-sm font-black text-emerald-500 uppercase tracking-[0.5em]">Pick a Date</h3>
                     </div>
-                    <div className="flex flex-col items-center justify-center py-10 px-12 bg-white/5 rounded-[2.5rem] border border-white/5 gap-3 min-w-[220px]">
-                        <span className="text-6xl font-black text-white tracking-tighter">{patientList.length}</span>
-                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em] opacity-80">Total Patients</span>
+                    <div className="relative group/date w-full">
+                      <CalendarIcon size={24} className="md:size-[32px] absolute left-6 md:left-12 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none group-focus-within/date:scale-110 transition-transform opacity-80" />
+                      <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={handleDateChange}
+                        className="bg-black/60 border-2 border-white/10 rounded-[1.8rem] md:rounded-[2.5rem] pl-16 md:pl-28 pr-6 md:pr-12 py-5 md:py-10 text-xl md:text-3xl font-black text-white outline-none focus:border-emerald-500 transition-all w-full cursor-pointer hover:bg-black/80 shadow-inner ring-offset-black focus:ring-4 ring-emerald-500/20"
+                      />
                     </div>
+                  </div>
+                  <div className="flex flex-col items-center justify-center py-6 md:py-10 px-8 md:px-12 bg-white/5 rounded-[1.8rem] md:rounded-[2.5rem] border border-white/5 gap-1 md:gap-3 min-w-[140px] md:min-w-[220px]">
+                    <span className="text-4xl md:text-6xl font-black text-white tracking-tighter">{patientList.length}</span>
+                    <span className="text-[8px] md:text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em] opacity-80">Patients</span>
+                  </div>
                 </div>
               </div>
 
@@ -172,7 +172,7 @@ export default function DailyReport({
                     <div key={p.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-7 bg-white/5 border border-white/5 rounded-[2.5rem] hover:bg-white/10 transition-all gap-6 group/item">
                       <div className="flex items-center gap-6">
                         <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-xs font-black text-emerald-500 group-hover/item:bg-emerald-600 group-hover/item:text-white transition-all">
-                           {String(idx + 1).padStart(2, '0')}
+                          {String(idx + 1).padStart(2, '0')}
                         </div>
                         <h3 className="font-black text-white uppercase tracking-tight text-2xl line-clamp-1">{p.patientName}</h3>
                       </div>
@@ -195,7 +195,7 @@ export default function DailyReport({
 
               {/* MODAL FOOTER */}
               <div className="p-10 md:p-14 bg-black/40 border-t border-white/10 flex flex-col sm:flex-row items-center gap-8">
-                 <button 
+                <button
                   onClick={copyToClipboard}
                   disabled={isLoading || patientList.length === 0}
                   className="w-full sm:w-auto px-12 py-7 bg-white text-black disabled:opacity-20 rounded-[2.2rem] text-[12px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:scale-105 active:scale-95 transition-all shadow-2xl"
@@ -203,7 +203,7 @@ export default function DailyReport({
                   {copied ? <Check size={18} /> : <Copy size={18} />}
                   {copied ? 'Copied' : 'Copy All'}
                 </button>
-                <button 
+                <button
                   onClick={downloadCSV}
                   disabled={isLoading || patientList.length === 0}
                   className="w-full sm:w-auto px-12 py-7 bg-emerald-600 text-white disabled:opacity-20 rounded-[2.2rem] text-[12px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-emerald-500 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-emerald-500/30"
@@ -212,8 +212,8 @@ export default function DailyReport({
                   Download for Excel / Google Sheets
                 </button>
                 <div className="hidden sm:flex flex-1 flex-col items-end gap-1">
-                   <p className="text-[10px] font-black text-white uppercase tracking-[0.4em]">HealthCore Secure Audit</p>
-                   <p className="text-[8px] font-black text-emerald-500/40 uppercase tracking-[0.5em]">Verified Clinical Ledger v1.8.2</p>
+                  <p className="text-[10px] font-black text-white uppercase tracking-[0.4em]">HealthCore Secure Audit</p>
+                  <p className="text-[8px] font-black text-emerald-500/40 uppercase tracking-[0.5em]">Verified Clinical Ledger v1.8.2</p>
                 </div>
               </div>
             </div>
