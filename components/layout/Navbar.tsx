@@ -91,26 +91,28 @@ export default function Navbar() {
               <Link
                 href="/"
                 onClick={closeMenu}
-                className="flex-shrink-0 flex items-center gap-5 group"
+                className="flex-shrink-0 flex items-center gap-3 sm:gap-5 group"
               >
                 <div className="relative">
                   <div className="absolute inset-0 bg-emerald-500/30 blur-2xl group-hover:bg-emerald-500/50 transition-all duration-1000"></div>
-                  <div className="bg-slate-900 dark:bg-white p-2.5 rounded-2xl relative z-10 transition-all shadow-2xl group-hover:rotate-[12deg] group-hover:scale-110 duration-700 border border-white/5">
-                    <Stethoscope className="h-6 w-6 text-white dark:text-black" />
+                  <div className="bg-slate-900 dark:bg-white p-2 sm:p-2.5 rounded-xl sm:rounded-2xl relative z-10 transition-all shadow-2xl group-hover:rotate-[12deg] group-hover:scale-110 duration-700 border border-white/5">
+                    <Stethoscope className="h-5 w-5 sm:h-6 sm:w-6 text-white dark:text-black" />
                   </div>
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">
-                    HealthCor Clinic <span className="text-emerald-500">v1.6.3</span>
+                  <span className="text-lg sm:text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">
+                    <span className="hidden sm:inline">HealthCor Clinic</span>
+                    <span className="sm:hidden">HealthCor</span>
+                    <span className="text-emerald-500 hidden md:inline ml-2">v1.6.3</span>
                   </span>
-                  <span className="text-[8px] md:text-[10px] font-bold text-slate-400 dark:text-emerald-500/40 uppercase tracking-[0.4em] mt-1 ml-0.5">
+                  <span className="text-[7px] sm:text-[8px] md:text-[10px] font-bold text-slate-400 dark:text-emerald-500/40 uppercase tracking-[0.2em] sm:tracking-[0.4em] mt-0.5 sm:mt-1 ml-0.5 truncate">
                     Elite Medical Node
                   </span>
                 </div>
               </Link>
 
               {/* Desktop Links */}
-              <div className="hidden lg:flex items-center space-x-2">
+              <div className="hidden xl:flex items-center space-x-2 flex-shrink-0">
                 {desktopLinks.map((link) => (
                   <Link
                     key={link.href}
@@ -118,7 +120,7 @@ export default function Navbar() {
                     className="relative flex flex-col items-center justify-center px-8 py-3 text-slate-900 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-all duration-700 group/navitem rounded-2xl hover:bg-emerald-500/5 min-w-[120px]"
                   >
                     <div className="flex items-center gap-2">
-                       <span className="opacity-0 group-hover/navitem:opacity-100 group-hover/navitem:translate-x-0 -translate-x-3 transition-all duration-700 transform scale-90 text-emerald-500">
+                      <span className="opacity-0 group-hover/navitem:opacity-100 group-hover/navitem:translate-x-0 -translate-x-3 transition-all duration-700 transform scale-90 text-emerald-500">
                         {link.icon}
                       </span>
                       <span className="font-black text-[13px] uppercase tracking-widest group-hover/navitem:translate-x-1 transition-transform duration-700">
@@ -126,7 +128,7 @@ export default function Navbar() {
                       </span>
                     </div>
                     {language === 'gu' && (
-                       <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 opacity-50 group-hover/navitem:opacity-100 transition-opacity">
+                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 opacity-50 group-hover/navitem:opacity-100 transition-opacity">
                         {link.href === '/' ? 'RESERVATIONS' : link.href === '/checkin' ? 'CHECK-IN' : 'LOBBY'}
                       </span>
                     )}
@@ -173,20 +175,23 @@ export default function Navbar() {
                 </div>
               </div>
 
-              <div className="lg:hidden flex items-center gap-2 md:gap-3">
+              <div className="xl:hidden flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0 pl-1">
                 <button
                   onClick={() => setLanguage(language === 'en' ? 'gu' : 'en')}
-                  className="flex items-center gap-2 p-3 md:p-4 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-xl md:rounded-2xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all active:scale-90 border border-emerald-500/20"
+                  className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 md:p-4 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-xl md:rounded-2xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all active:scale-90 border border-emerald-500/20"
                 >
                   <Globe className="w-4 h-4 md:w-5 md:h-5" />
-                  <span className="text-[10px] font-black">{language === 'en' ? 'GUJ' : 'ENG'}</span>
+                  <span className="text-[9px] sm:text-[10px] font-black">{language === 'en' ? 'GUJ' : 'ENG'}</span>
                 </button>
-                <ThemeToggle />
+                <div className="scale-75 sm:scale-90 md:scale-100">
+                  <ThemeToggle />
+                </div>
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="p-3 md:p-4 bg-slate-100 dark:bg-white/5 rounded-xl md:rounded-2xl text-slate-600 dark:text-white hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 transition-all active:scale-90 shadow-sm"
+                  className="p-2 sm:p-3 md:p-4 bg-slate-900 dark:bg-white/10 rounded-xl md:rounded-2xl text-white hover:bg-emerald-500 dark:hover:bg-emerald-600 transition-all active:scale-90 shadow-lg flex items-center justify-center gap-2 group border border-transparent dark:border-white/10"
                 >
-                  {isMenuOpen ? <X className="w-5 h-5 md:w-6 md:h-6" /> : <Menu className="w-5 h-5 md:w-6 md:h-6" />}
+                  {isMenuOpen ? <X className="w-5 h-5 md:w-6 md:h-6" /> : <Menu className="w-5 h-5 md:w-6 md:h-6 group-hover:rotate-180 transition-transform duration-500" />}
+                  <span className="sr-only">Toggle menu</span>
                 </button>
               </div>
             </div>
@@ -194,7 +199,7 @@ export default function Navbar() {
 
           {/* Mobile Menu */}
           <div
-            className={`lg:hidden transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] border-t border-slate-200 dark:border-white/5 overflow-hidden
+            className={`xl:hidden transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] border-t border-slate-200 dark:border-white/5 overflow-hidden
                         ${isMenuOpen ? 'max-h-[700px] opacity-100' : 'max-h-0 opacity-0'}`}
           >
             <div className="p-4 sm:p-8 space-y-3 sm:space-y-5 bg-slate-50/80 dark:bg-black/40 backdrop-blur-3xl max-h-[80vh] overflow-y-auto custom-scrollbar">
