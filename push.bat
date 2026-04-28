@@ -8,5 +8,8 @@ git commit -m "Update - Ridham Clinic App" --author="Ridham Lalakiya <ridhamlala
 git pull origin main --allow-unrelated-histories --strategy-option=theirs
 git push -u origin main
 echo.
-echo DONE! Check https://github.com/RIDHAMLALKIYA/ridham-clinic
+echo Pushing to Vercel...
+vercel --prod --yes
+echo.
+echo DONE! Website updated at https://ridham-clinic-v1.vercel.app
 pause

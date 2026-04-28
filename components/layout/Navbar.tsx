@@ -15,6 +15,7 @@ import {
   Activity,
   Heart,
   Globe,
+  Settings,
 } from 'lucide-react';
 import { ThemeToggle } from '../shared/ThemeToggle';
 import { useLanguage } from '../providers/LanguageProvider';
@@ -24,7 +25,9 @@ export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
+  const lastScrollY = useRef(0);
 
   // Hydration safe check
   const [isMounted, setIsMounted] = useState(false);
@@ -32,30 +35,19 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrolled = window.scrollY > 20;
-      setIsScrolled(scrolled);
-      if (scrolled) setIsVisible(true);
-      else if (!isMenuOpen) setIsVisible(false);
+      const currentScrollY = window.scrollY;
+      setIsScrolled(currentScrollY > 20);
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100 && !isMenuOpen) {
+        setIsVisible(false);
+      } else if (currentScrollY < lastScrollY.current || currentScrollY <= 100) {
+        setIsVisible(true);
+      }
+      lastScrollY.current = currentScrollY;
     };
 
-    // Initial check
-    if (window.scrollY > 20) {
-      setIsScrolled(true);
-      setIsVisible(true);
-    }
-
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isMenuOpen]);
-
-  // Simplified: Nav is always visible on desktop for elite accessibility
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const closeMenu = () => setIsMenuOpen(false);
 
@@ -65,24 +57,18 @@ export default function Navbar() {
     { name: t('nav.lobby'), href: '/queue', icon: <Users className="w-4 h-4" /> },
   ];
 
-  const toggleLanguage = () => {
-    setLanguage(language === 'en' ? 'gu' : 'en');
-  };
-
   return (
     <>
-      {/* Dynamic Spacer to prevent content jump when nav is fixed */}
-      <div
-        className={`transition-all duration-700 ${isScrolled || isVisible ? 'h-24' : 'h-0 lg:h-0'}`}
-      ></div>
+      {/* Fixed Spacer to prevent content jump when nav is fixed */}
+      <div className="h-28 lg:h-32 transition-all duration-700"></div>
 
       <nav
         ref={navRef}
-        className={`fixed top-0 inset-x-0 z-[100] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform
-                ${!isMounted ? 'translate-y-0 opacity-100' : isVisible || isMenuOpen || isScrolled ? 'translate-y-0 opacity-100' : 'max-lg:translate-y-0 max-lg:opacity-100 -translate-y-full opacity-0'}`}
+        className={`fixed top-0 inset-x-0 z-[100] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform
+                ${!isMounted ? 'translate-y-0 opacity-100' : isVisible || isMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
         <div
-          className={`mx-3 sm:mx-4 mt-4 lg:mt-6 rounded-[1.8rem] md:rounded-[2.8rem] border border-white/10 transition-all duration-700 shadow-2xl overflow-hidden glass-vip-polished
+          className={`mx-3 sm:mx-4 mt-4 lg:mt-6 rounded-[1.8rem] md:rounded-[2.8rem] border border-white/10 transition-all duration-700 shadow-2xl glass-vip-polished
                     ${isScrolled || isMenuOpen ? 'border-beam' : ''}`}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
@@ -103,7 +89,6 @@ export default function Navbar() {
                   <span className="text-lg sm:text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">
                     <span className="hidden sm:inline">HealthCor Clinic</span>
                     <span className="sm:hidden">HealthCor</span>
-                    <span className="text-emerald-500 hidden md:inline ml-2">v1.6.3</span>
                   </span>
                   <span className="text-[7px] sm:text-[8px] md:text-[10px] font-bold text-slate-400 dark:text-emerald-500/40 uppercase tracking-[0.2em] sm:tracking-[0.4em] mt-0.5 sm:mt-1 ml-0.5 truncate">
                     Elite Medical Node
@@ -117,18 +102,18 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="relative flex flex-col items-center justify-center px-8 py-3 text-slate-900 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-all duration-700 group/navitem rounded-2xl hover:bg-emerald-500/5 min-w-[120px]"
+                    className="relative flex flex-col items-center justify-center px-3 py-3 text-slate-900 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-all duration-700 group/navitem rounded-2xl hover:bg-emerald-500/5 min-w-[80px]"
                   >
                     <div className="flex items-center gap-2">
                       <span className="opacity-0 group-hover/navitem:opacity-100 group-hover/navitem:translate-x-0 -translate-x-3 transition-all duration-700 transform scale-90 text-emerald-500">
                         {link.icon}
                       </span>
-                      <span className="font-black text-[13px] uppercase tracking-widest group-hover/navitem:translate-x-1 transition-transform duration-700">
+                      <span className="font-black text-[11px] uppercase tracking-widest group-hover/navitem:translate-x-1 transition-transform duration-700">
                         {link.name}
                       </span>
                     </div>
                     {language === 'gu' && (
-                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 opacity-50 group-hover/navitem:opacity-100 transition-opacity">
+                      <span className="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 opacity-50 group-hover/navitem:opacity-100 transition-opacity">
                         {link.href === '/' ? 'RESERVATIONS' : link.href === '/checkin' ? 'CHECK-IN' : 'LOBBY'}
                       </span>
                     )}
@@ -136,27 +121,11 @@ export default function Navbar() {
                   </Link>
                 ))}
 
-                <div className="h-8 w-px bg-slate-200 dark:bg-white/10 mx-6 opacity-50"></div>
-
-                {/* Language Switcher - Elite Dual-Toggle */}
-                <button
-                  onClick={() => setLanguage(language === 'en' ? 'gu' : 'en')}
-                  className="flex items-center gap-3 px-6 py-3 bg-emerald-500/10 dark:bg-emerald-500/20 border-2 border-emerald-500/30 dark:border-emerald-500/40 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-emerald-500 hover:bg-emerald-500 hover:text-white transition-all active:scale-95 group/lang shadow-inner min-w-[140px]"
-                >
-                  <Globe className="w-5 h-5 text-emerald-500 group-hover/lang:rotate-45 group-hover/lang:text-white transition-all" />
-                  <div className="flex flex-col items-start leading-[1.1] font-outfit">
-                    <span className={language === 'en' ? "text-emerald-600 dark:text-emerald-400 group-hover/lang:text-white" : "text-slate-500 group-hover/lang:text-white/60"}>
-                      {language === 'en' ? '● ENGLISH' : 'ENGLISH'}
-                    </span>
-                    <span className={language === 'gu' ? "text-emerald-600 dark:text-emerald-400 group-hover/lang:text-white text-[11px]" : "text-slate-500 group-hover/lang:text-white/60 text-[11px]"}>
-                      {language === 'gu' ? '● ગુજરાતી' : 'ગુજરાતી'}
-                    </span>
-                  </div>
-                </button>
+                <div className="h-8 w-px bg-slate-200 dark:bg-white/10 mx-2 opacity-50"></div>
 
                 <Link
                   href="/doctor/dashboard"
-                  className="relative overflow-hidden flex items-center gap-3 bg-slate-900 dark:bg-emerald-600 text-white px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl group/btn active:scale-95 border border-white/10 hover:shadow-emerald-500/20 ml-3"
+                  className="relative overflow-hidden flex items-center gap-2 bg-slate-900 dark:bg-emerald-600 text-white px-4 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl group/btn active:scale-95 border border-white/10 hover:shadow-emerald-500/20"
                 >
                   <Activity className="w-4 h-4 text-emerald-300 group-hover/btn:animate-[pulse_1s_infinite]" />
                   <span>{t('nav.console')}</span>
@@ -164,25 +133,77 @@ export default function Navbar() {
 
                 <Link
                   href="/admin"
-                  className="flex items-center gap-3 text-slate-900 dark:text-white bg-white/5 dark:bg-black/20 hover:bg-slate-50 dark:hover:bg-white/5 px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border border-slate-200 dark:border-white/10 hover:border-emerald-500/50 shadow-sm active:scale-95 group/admin ml-3"
+                  className="flex items-center gap-2 text-slate-900 dark:text-white bg-white/5 dark:bg-black/20 hover:bg-slate-50 dark:hover:bg-white/5 px-4 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border border-slate-200 dark:border-white/10 hover:border-emerald-500/50 shadow-sm active:scale-95 group/admin ml-2"
                 >
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
                   <span>{t('nav.admissions')}</span>
                 </Link>
 
-                <div className="ml-4">
-                  <ThemeToggle />
+                {/* Settings Dropdown */}
+                <div className="ml-2 relative">
+                  <button
+                    onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                    onBlur={() => setTimeout(() => setIsSettingsOpen(false), 200)}
+                    className={`w-10 h-10 rounded-2xl flex flex-shrink-0 items-center justify-center transition-all duration-500 shadow-sm active:scale-95 z-10 ${isSettingsOpen ? 'bg-emerald-500 text-white shadow-emerald-500/30 border border-emerald-500' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:text-emerald-500 hover:border-emerald-300'}`}
+                    title="Settings"
+                  >
+                    <Settings className={`w-5 h-5 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isSettingsOpen ? 'rotate-180' : 'rotate-0'}`} />
+                  </button>
+
+                  <div className={`absolute top-full right-0 mt-3 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl transition-all duration-300 transform origin-top-right z-[110] flex flex-col overflow-hidden ${isSettingsOpen ? 'opacity-100 visible translate-y-0 scale-100' : 'opacity-0 invisible translate-y-2 scale-95'}`}>
+                    <div className="p-2 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-2">Theme</span>
+                      <div className="scale-90 origin-right -ml-2">
+                        <ThemeToggle />
+                      </div>
+                    </div>
+                    <div className="p-2 flex flex-col gap-1">
+                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-2 pt-1 pb-1">Language</span>
+                      <button
+                        onClick={() => { setLanguage('en'); setIsSettingsOpen(false); }}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors ${language === 'en' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-300'}`}
+                      >
+                        <span className="text-xl leading-none">🇬🇧</span>
+                        <span className="text-[11px] font-bold uppercase tracking-widest">English (UK)</span>
+                      </button>
+                      <button
+                        onClick={() => { setLanguage('gu'); setIsSettingsOpen(false); }}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors ${language === 'gu' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-300'}`}
+                      >
+                        <span className="text-xl leading-none">🇮🇳</span>
+                        <span className="text-[11px] font-bold uppercase tracking-widest">Gujarati (IN)</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
+              {/* Mobile Controls */}
               <div className="xl:hidden flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0 pl-1">
-                <button
-                  onClick={() => setLanguage(language === 'en' ? 'gu' : 'en')}
-                  className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 md:p-4 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-xl md:rounded-2xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all active:scale-90 border border-emerald-500/20"
-                >
-                  <Globe className="w-4 h-4 md:w-5 md:h-5" />
-                  <span className="text-[9px] sm:text-[10px] font-black">{language === 'en' ? 'GUJ' : 'ENG'}</span>
-                </button>
+                <div className="relative group/mobilelang">
+                  <button
+                    className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 md:p-4 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-xl md:rounded-2xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all active:scale-90 border border-emerald-500/20 focus:outline-none"
+                  >
+                    <span className="text-sm md:text-base leading-none">{language === 'en' ? '🇬🇧' : '🇮🇳'}</span>
+                    <span className="text-[9px] sm:text-[10px] font-black">{language === 'en' ? 'ENG' : 'GUJ'}</span>
+                  </button>
+                  <div className="absolute top-full right-0 mt-2 w-36 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl opacity-0 invisible group-hover/mobilelang:opacity-100 group-hover/mobilelang:visible focus-within:opacity-100 focus-within:visible transition-all duration-300 z-[110] overflow-hidden flex flex-col">
+                    <button
+                      onClick={() => { setLanguage('en'); (document.activeElement as HTMLElement)?.blur(); }}
+                      className={`w-full flex items-center gap-2 px-3 py-3 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors ${language === 'en' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-300'}`}
+                    >
+                      <span className="text-lg leading-none">🇬🇧</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest">EN (UK)</span>
+                    </button>
+                    <button
+                      onClick={() => { setLanguage('gu'); (document.activeElement as HTMLElement)?.blur(); }}
+                      className={`w-full flex items-center gap-2 px-3 py-3 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors border-t border-slate-100 dark:border-white/5 ${language === 'gu' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-300'}`}
+                    >
+                      <span className="text-lg leading-none">🇮🇳</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest">GUJ (IN)</span>
+                    </button>
+                  </div>
+                </div>
                 <div className="scale-75 sm:scale-90 md:scale-100">
                   <ThemeToggle />
                 </div>
@@ -199,7 +220,7 @@ export default function Navbar() {
 
           {/* Mobile Menu */}
           <div
-            className={`xl:hidden transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] border-t border-slate-200 dark:border-white/5 overflow-hidden
+            className={`xl:hidden transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] border-t border-slate-200 dark:border-white/5 overflow-hidden rounded-b-[1.8rem] md:rounded-b-[2.8rem]
                         ${isMenuOpen ? 'max-h-[700px] opacity-100' : 'max-h-0 opacity-0'}`}
           >
             <div className="p-4 sm:p-8 space-y-3 sm:space-y-5 bg-slate-50/80 dark:bg-black/40 backdrop-blur-3xl max-h-[80vh] overflow-y-auto custom-scrollbar">
