@@ -4,18 +4,10 @@ import { authenticate, seedAccounts } from '@/lib/actions';
 import { Lock, Mail, ShieldCheck, UserPlus } from 'lucide-react';
 import SubmitButton from '@/components/ui/SubmitButton';
 import AnimatedWrapper from '@/components/layout/AnimatedWrapper';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function LoginPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [sessionId, setSessionId] = useState<string>('XXXXXX');
-  const [isLocalhost, setIsLocalhost] = useState<boolean>(false);
-
-  useEffect(() => {
-    setSessionId(Math.random().toString(36).substring(7).toUpperCase());
-    setIsLocalhost(window.location.hostname === 'localhost');
-  }, []);
-
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-transparent relative overflow-hidden">
       <div className="w-full max-w-md">
@@ -100,12 +92,13 @@ export default function LoginPage() {
                 <div className="pt-6">
                   <SubmitButton className="shadow-[0_20px_40px_-10px_rgba(16,185,129,0.4)]" />
                   <p className="mt-8 text-[9px] text-slate-400 font-black uppercase tracking-[0.5em] text-center opacity-40">
-                    Encrypted Session ID: VIP-{sessionId}
+                    Encrypted Session ID: VIP-
+                    {Math.random().toString(36).substring(7).toUpperCase()}
                   </p>
                 </div>
               </form>
 
-              {isLocalhost && (
+              {typeof window !== 'undefined' && window.location.hostname === 'localhost' && (
               <div className="mt-10 pt-10 border-t border-slate-100 dark:border-white/5">
                 <form
                   action={async () => {
